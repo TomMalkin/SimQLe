@@ -13,6 +13,7 @@ python:
 # Install the codecov pip dependency
 install:
   - pip install codecov pytest
+  - pip install -r requirements.txt
 
 # Run the unit test
 script:
