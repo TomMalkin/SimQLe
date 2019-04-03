@@ -68,7 +68,7 @@ Tom Malkin - tommalkin28@gmail.com
 
 ## Release History
 
-- 0.0.1
+- 0.1.0
 	- Add the basic skeleton of the project
 
 ## Road Map
