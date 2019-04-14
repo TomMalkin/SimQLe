@@ -33,7 +33,7 @@ def load_connections(test=False, connections_file="./.connections.yaml"):
         CONNS[name] = create_engine(driver + connection_string)
 
 
-def get_con(con_name):
+def get_connection(con_name):
     """Return the connection object defined by the given <name>."""
     return CONNS.get(con_name)
 
