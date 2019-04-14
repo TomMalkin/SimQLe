@@ -28,7 +28,7 @@ def execute_sql(con_name, sql, params=None):
         connection.close()
 
 
-def rst(con_name, sql, params=None):
+def recordset(con_name, sql, params=None):
     """
     Execute <sql> on <con>, with named <params>.
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simqle"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Tom Malkin <tommalkin28@gmail.com>"]
 
