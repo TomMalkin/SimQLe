@@ -2,7 +2,7 @@
 
 from sqlalchemy.sql import text, bindparam
 from sqlalchemy.types import VARCHAR
-from .connections import get_con
+from .connections import get_connection
 
 
 def _bind_params(bound_sql, params):
