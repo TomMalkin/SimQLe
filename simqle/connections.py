@@ -9,11 +9,12 @@ from yaml import safe_load
 from sqlalchemy import create_engine
 from urllib.parse import quote_plus
 from .constants import DEV_MAP
+import os
 
 CONNS = {}
 
 
-def load_connections(test=False, connections_file="./.connections.yaml"):
+def load_connections(connections_file="./.connections.yaml"):
     """
     Load engines into the CONNS dict from the <connections_file>.
 
@@ -21,8 +22,10 @@ def load_connections(test=False, connections_file="./.connections.yaml"):
     """
     connections_yaml = _load_yaml_from_file(connections_file)
 
+    test_mode = os.getenv("SIMQLE_TEST", False)
+
     # load the set of connections based on test mode
-    dev_type = DEV_MAP[test]
+    dev_type = DEV_MAP[test_mode]
 
     for connection in connections_yaml[dev_type]:
 
