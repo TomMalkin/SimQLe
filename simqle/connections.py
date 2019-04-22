@@ -44,3 +44,8 @@ def get_connection(con_name):
 def _load_yaml_from_file(connections_file):
     with open(connections_file) as file:
         return safe_load(file.read())
+
+
+def reset_connections():
+    """Set the CONNS map to empty."""
+    CONNS.clear()

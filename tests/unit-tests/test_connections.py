@@ -14,6 +14,7 @@ def test_load_connections(monkeypatch, make_fake_load_yaml_from_file):
     monkeypatch.setattr("simqle.connections.quote_plus",
                         lambda x: x)
 
+    connections.reset_connections()
     assert connections.CONNS == {}
 
     connections.load_connections()
