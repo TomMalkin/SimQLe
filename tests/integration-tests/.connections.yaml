@@ -1,5 +1,5 @@
 connections:
   - name: my-sqlite-database
     driver: sqlite:///
-    connection: tests/test-files/database.db
+    connection: /tmp/database.db
     file: True

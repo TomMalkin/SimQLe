@@ -3,7 +3,7 @@
 
 from simqle import load_connections, recordset, execute_sql, reset_connections
 import os
-from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.exc import OperationalError
 
 
 def setup_function():
@@ -14,7 +14,7 @@ def setup_function():
 def teardown_function():
     """Remove the database used in the tests."""
     try:
-        os.remove("./tests/test-files/database.db")
+        os.remove("/tmp/database.db")
     except OSError:
         pass
 
