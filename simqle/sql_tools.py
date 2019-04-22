@@ -32,7 +32,7 @@ def _bind_sql(sql, params):
 
 
 def _load_connection(con_name):
-    con = get_con(con_name)
+    con = get_connection(con_name)
     connection = con.connect()
     transaction = connection.begin()
 
