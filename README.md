@@ -1,43 +1,57 @@
 
 # SimQLe
 
-> The simple way to SQL in Python
+> The simple way to SQL
 
 
 [![build status](http://img.shields.io/travis/Harlekuin/SimQLe/master.svg?style=flat)](https://travis-ci.org/Harlekuin/SimQLe)
 [![codecov](https://codecov.io/gh/Harlekuin/SimQLe/branch/master/graph/badge.svg)](https://codecov.io/gh/Harlekuin/SimQLe)
 
-Execute SQL and return useful record sets without the fuss of connection management.
+
+Perfect for no fuss SQL in your Python projects. Execute SQL and return simple
+Recordsets. Manage several connections, and be certain that your production
+databases aren't touched in your Integration Tests. Also, named parameters
+across the board.
 
 ## Installation
 
 ### Repository
 https://github.com/Harlekuin/SimQLe
 
-Or choose your poison:
+Or choose your poison (once it's uploaded to pypi):
 
-`$ pip install simqle`
-`$ poetry add simqle`
-`$ pipenv install simqle`
+- `$ pip install simqle`
+- `$ poetry add simqle`
+- `$ pipenv install simqle`
 
-Once installed, requires a .connections.yaml file in the root of the project that defines the connection strings the project should use. See the Connection String section for syntax.
+Once installed, requires a .connections.yaml file in the root of the project
+that defines the connection strings the project should use. See the Connection
+String section for syntax.
 
 ## Usage
 
 ### In Production
+
+Get a result from the name of your connection, the SQL statement, and a dict
+of parameters:
+
 ```python
-from simqle import rst, load_connections
+from simqle import recordset, load_connections
 
 load_connections()
 
-sql = "SELECT name, age from people where category = :category"
+sql = "SELECT name, age FROM people WHERE category = :category"
 params = {"category": 5}
-result = rst("my-database", sql, params)
+result = recordset(con_name="my-database", sql=sql, params=params)
 ```
 
-### In Tests
+### In Integration Tests
 
-To Do.
+Before running integration tests, set the `SIMQLE_TEST` environment variable
+to `True`. This will cause the `load_connections` function to load the
+`test-connections` (which should mirror the `connections` in terms of name and
+type of database), and will cause the code in your project to run exactly the
+same, but instead connect to your defined test connections instead.
 
 
 ## The .connections.yaml File
@@ -45,24 +59,36 @@ Define the connection strings for production and test servers. The names of the 
 
 Example file:
 
-```
+```yaml
 connections:
-  - name: my-database-1
+    # The name of the connection - this is what will be used in your project
+    # to reference this connection.
+  - name: my-sql-server-database
     driver: mssql+pyodbc:///?odbc_connect=
+    # spaces in connection strings are fine.
     connection: DRIVER={SQL Server};UID=<username>;PWD=<password>;SERVER=<my-server>
 
-  - name: my-database-2
-    driver: mssql+pyodbc:///?odbc_connect=
-    connection: DRIVER={SQL Server};Trusted_Connection=Yes;SERVER=<my-server2>;Persist Security Info=true
+    # File based databases like sqlite are slightly different - the driver
+    # is very simple.
+  - name: my-sqlite-database
+    driver: sqlite:///
+    # put a leading '/' before the connection for an absolute path, or omit
+    # if it's relative to the project path
+    connection: databases/my-database.db
+    # set the optional file parameter to true if connecting to a file.
+    file: True
 
 test-connections:
-  - name: my-database-1
+    # the names of the test-connections should mirror the connections above.
+  - name: my-sql-server-database
     driver: mssql+pyodbc:///?odbc_connect=
+    # connecting to a different server here
     connection: DRIVER={SQL Server};UID=<username>;PWD=<password>;SERVER=<my-test-server>
 
-  - name: my-database-2
-    driver: mssql+pyodbc:///?odbc_connect=
-    connection: DRIVER={SQL Server};Trusted_Connection=Yes;SERVER=<my-test-server2>;Persist Security Info=true
+  - name: my-sqlite-database
+    driver: sqlite:///
+    connection: /tmp/my-test-database.db  # note the absolute path syntax
+    file: True
 ```
 
 ## Author
@@ -74,10 +100,10 @@ Tom Malkin - tommalkin28@gmail.com
 
 - 0.1.0
 	- Add the basic skeleton of the project
+- 0.1.1
+  - Fully tested and covered
 
 ## Road Map
-- simqle - perfect for writing integration tests.
-- all known databases tested.
-- test coverage and CI.
+- all available relational databases tested.
 - scripts for easy project setup.
 - pypi upload.
