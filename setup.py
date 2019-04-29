@@ -16,10 +16,11 @@ with open("README.md", "r", encoding="utf-8") as f:
 REQUIRES = ["sqlalchemy", "pyyaml"]
 
 setup(
-    name="simqle-Harlekuin",
+    name="simqle",
     version=version,
-    description="The simple way to sql in python",
+    description="The simple way to SQL",
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Tom Malkin",
     author_email="tommalkin28@gmail.com",
     maintainer="Tom Malkin",
