@@ -2,4 +2,3 @@ connections:
   - name: my-sqlite-database
     driver: sqlite:///
     connection: /tmp/database.db
-    file: True

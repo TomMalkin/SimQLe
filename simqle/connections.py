@@ -32,13 +32,16 @@ def load_connections(connections_file="./.connections.yaml"):
         name = connection["name"]
         driver = connection["driver"]
 
-        # If the database connection is a file (for example, sqlite), then the
-        # connection string is simply a path, and we don't want to run that
-        # through the quote_plus parsing function.
-        if connection.get("file"):
-            connection_string = connection["connection"]
-        else:
+        # for Microsoft ODBC connections, for example, the connection string
+        # must be url escaped. We do this for the user if the url_escape
+        # option is True. See here for example and more info:
+        # https://docs.sqlalchemy.org/en/13/dialects/mssql.html
+        #   #pass-through-exact-pyodbc-string
+        url_escape = connection.get("url_escape")
+        if url_escape:
             connection_string = quote_plus(connection["connection"])
+        else:
+            connection_string = connection["connection"]
 
         # Our connection object is created through sqlalchemy's create_engine
         # function, and stored in the connection map CONNS.

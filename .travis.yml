@@ -1,10 +1,17 @@
 # Disable sudo to speed up the build
 sudo: false
 
+# Add database services
+services:
+  - mysql
+
+before_script:
+  - mysql -e 'CREATE DATABASE testdatabase;'
+
 # Set the build language to Python
 language: python
 
-# Set the python version to 2.7
+# Set the python version to 3.5 and 3.6
 python:
   - 3.5
   - 3.6
@@ -13,10 +20,14 @@ python:
 install:
   - pip install codecov pytest
   - pip install -r requirements.txt
+  - pip install -r ./tests/integration-tests/sqlite-tests/sqlite-requirements.txt
+  - pip install -r ./tests/integration-tests/mysql-tests/mysql-requirements.txt
 
 # Run the unit test
 script:
-  - coverage run -m pytest ./tests/
+  - coverage run -m pytest ./tests/unit-tests/
+  - coverage run -a -m pytest ./tests/integration-tests/sqlite-tests
+  - coverage run -a -m pytest ./tests/integration-tests/mysql-tests
 
 # Push the results back to codecov
 after_success:

@@ -3,7 +3,7 @@
 
 from simqle import load_connections, recordset, execute_sql, reset_connections
 import os
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import ProgrammingError
 
 
 def setup_function():
@@ -21,16 +21,20 @@ def teardown_function():
 
 def test_recordset():
     """Test the recordset function.py."""
-    load_connections("./tests/integration-tests/.connections.yaml")
+    load_connections("./tests/integration-tests/mysql-tests"
+                     "/.connections.yaml")
 
     # create a table
+    sql = "drop table if exists TestTable"
+    execute_sql(con_name="mysql-database", sql=sql)
+
     sql = """
         create table TestTable (
-            id integer primary key autoincrement,
+            id integer primary key auto_increment,
             TestField text
         )
         """
-    execute_sql(con_name="my-sqlite-database", sql=sql)
+    execute_sql(con_name="mysql-database", sql=sql)
 
     # insert some data
     sql = """
@@ -38,14 +42,14 @@ def test_recordset():
         ('some data 1'),
         ('some data 2')
         """
-    execute_sql(con_name="my-sqlite-database", sql=sql)
+    execute_sql(con_name="mysql-database", sql=sql)
 
     # collect the data into a recordset
     sql = """
         select id, TestField
         from TestTable
         """
-    rst = recordset(con_name="my-sqlite-database", sql=sql)
+    rst = recordset(con_name="mysql-database", sql=sql)
 
     # assert the recordset takes the form we would expect
     assert rst == (
@@ -73,7 +77,7 @@ def test_recordset():
         "id": 2
         }
 
-    rst = recordset(con_name="my-sqlite-database", sql=sql, params=params)
+    rst = recordset(con_name="mysql-database", sql=sql, params=params)
 
     assert rst == (
 
@@ -87,31 +91,40 @@ def test_recordset():
 
 def test_sql_with_errors():
     """Test the exception handling of execute_sql."""
-    load_connections("./tests/integration-tests/.connections.yaml")
+    load_connections("./tests/integration-tests/mysql-tests"
+                     "/.connections.yaml")
+
+    # create a table
+    sql = "drop table if exists TestTable"
+    execute_sql(con_name="mysql-database", sql=sql)
 
     # An otherwise valid SQL statement with a typo
     sql = """
         creat table TestTable (
-            id integer primary key autoincrement,
+            id integer primary key auto_increment,
             TestField text
         )
         """
 
     try:
-        execute_sql(con_name="my-sqlite-database", sql=sql)
+        execute_sql(con_name="mysql-database", sql=sql)
     except Exception as exception:
-        assert type(exception) == OperationalError
+        assert type(exception) == ProgrammingError
+
+    # create a table
+    sql = "drop table if exists TestTable"
+    execute_sql(con_name="mysql-database", sql=sql)
 
     sql = """
         create table TestTable (
-            id integer primary key autoincrement,
+            id integer primary key auto_increment,
             TestField text
         )
         """
-    execute_sql(con_name="my-sqlite-database", sql=sql)
+    execute_sql(con_name="mysql-database", sql=sql)
 
     sql = "select * from TestTable2"
     try:
-        rst = recordset(con_name="my-sqlite-database", sql=sql)
+        recordset(con_name="mysql-database", sql=sql)
     except Exception as exception:
-        assert type(exception) == OperationalError
+        assert type(exception) == ProgrammingError
