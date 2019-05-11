@@ -1,0 +1,4 @@
+connections:
+  - name: mysql-database
+    driver: postgresql+psycopg2://
+    connection: postgres@localhost/testdatabase

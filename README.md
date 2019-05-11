@@ -109,9 +109,9 @@ Tom Malkin - tommalkin28@gmail.com
   - Unit tests
   - Integration tests for sqlite added.
   - 100% coverage
-- 0.2.1
+- 0.2.0
   - Added url_escape option in connections.yaml file
-  - Integration tests added for mysql
+  - Integration tests added for mysql and postgresql
 
 ## Road Map
 - all available relational databases tested.
