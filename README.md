@@ -45,6 +45,10 @@ params = {"category": 5}
 result = recordset(con_name="my-database", sql=sql, params=params)
 ```
 
+recordset() returns a tuple of (Data, Headings). "Data" is a list of row tuples.
+Headings is a list of field names from the query.
+
+
 ### In Integration Tests
 
 Before running integration tests, set the `SIMQLE_TEST` environment variable
@@ -65,8 +69,10 @@ connections:
     # to reference this connection.
   - name: my-sql-server-database
     driver: mssql+pyodbc:///?odbc_connect=
-    # spaces in connection strings are fine.
     connection: DRIVER={SQL Server};UID=<username>;PWD=<password>;SERVER=<my-server>
+    # some odbc connections require urls to be escaped, this is managed by
+    # setting url_escaped = true:
+    url_escape: true
 
     # File based databases like sqlite are slightly different - the driver
     # is very simple.
@@ -75,8 +81,7 @@ connections:
     # put a leading '/' before the connection for an absolute path, or omit
     # if it's relative to the project path
     connection: databases/my-database.db
-    # set the optional file parameter to true if connecting to a file.
-    file: True
+
 
 test-connections:
     # the names of the test-connections should mirror the connections above.
@@ -84,11 +89,11 @@ test-connections:
     driver: mssql+pyodbc:///?odbc_connect=
     # connecting to a different server here
     connection: DRIVER={SQL Server};UID=<username>;PWD=<password>;SERVER=<my-test-server>
+    url_escape: true    
 
   - name: my-sqlite-database
     driver: sqlite:///
     connection: /tmp/my-test-database.db  # note the absolute path syntax
-    file: True
 ```
 
 ## Author
@@ -101,9 +106,15 @@ Tom Malkin - tommalkin28@gmail.com
 - 0.1.0
 	- Add the basic skeleton of the project
 - 0.1.1
-  - Fully tested and covered
+  - Unit tests
+  - Integration tests for sqlite added.
+  - 100% coverage
+- 0.2.1
+  - Added url_escape option in connections.yaml file
+  - Integration tests added for mysql
 
 ## Road Map
 - all available relational databases tested.
 - scripts for easy project setup.
 - pypi upload.
+- default location connection file
