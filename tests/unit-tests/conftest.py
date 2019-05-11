@@ -26,7 +26,11 @@ def fake_connections():
 
     return {"connections": [{"name": "fake database",
                              "driver": "mssql+pyodbc:///?odbc_connect=",
-                             "connection": fake_connection}],
+                             "connection": fake_connection},
+                            {"name": "fake database 2",
+                             "driver": "mssql2+pyodbc:///?odbc_connect=",
+                             "connection": fake_connection,
+                             "url_escape": True}],
             "test-connections": [{"name": "fake test database",
                                   "driver": "mssql+pyodbc:///?odbc_connect=",
                                   "connection": fake_test_connection}]}

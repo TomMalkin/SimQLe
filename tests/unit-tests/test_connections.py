@@ -25,7 +25,8 @@ def test_load_connections(monkeypatch, make_fake_load_yaml_from_file):
                   "SERVER=<my-server>")
 
     assert connections.CONNS == {
-        "fake database": "mssql+pyodbc:///?odbc_connect=" + connection
+        "fake database": "mssql+pyodbc:///?odbc_connect=" + connection,
+        "fake database 2": "mssql2+pyodbc:///?odbc_connect=" + connection
         }
 
 
