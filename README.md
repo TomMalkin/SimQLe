@@ -18,7 +18,7 @@ across the board.
 ### Repository
 https://github.com/Harlekuin/SimQLe
 
-Or choose your poison (once it's uploaded to pypi):
+Or choose your poison:
 
 - `$ pip install simqle`
 - `$ poetry add simqle`
