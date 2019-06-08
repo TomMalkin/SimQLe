@@ -100,7 +100,7 @@ class ConnectionManager:
                 self.connections[conn_name] = _Connection(conn_config)
                 return self.connections[conn_name]
 
-        raise Exception(f"Unknown connection {conn_name}")
+        raise Exception("Unknown connection {}".format(conn_name))
 
 
 class _Connection:
