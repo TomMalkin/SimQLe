@@ -51,12 +51,12 @@ class ConnectionManager:
     def recordset(self, con_name, sql, params=None):
         """Return recordset from connection."""
         connection = self._get_connection(con_name)
-        return connection.recordset(con_name, sql, params=None)
+        return connection.recordset(con_name, sql, params=params)
 
     def execute_sql(self, con_name, sql, params=None):
         """Execute SQL on a given connection."""
         connection = self._get_connection(con_name)
-        return connection.execute_sql(con_name, sql, params=None)
+        return connection.execute_sql(con_name, sql, params=params)
 
     def get_engine(self, con_name):
         """Return the engine of a Connection by it's name."""
