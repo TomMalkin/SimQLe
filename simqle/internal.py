@@ -34,4 +34,5 @@ def get_connection(con_name):
 
 def reset_connections():
     """Clear the internal ConnectionManager's connections."""
-    INTERNAL_CONNECTION_MANAGER.reset_connections()
+    if INTERNAL_CONNECTION_MANAGER:  # TODO: add __bool__ to ConnectionManager
+        INTERNAL_CONNECTION_MANAGER.reset_connections()
