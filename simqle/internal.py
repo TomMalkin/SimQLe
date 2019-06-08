@@ -7,6 +7,8 @@ INTERNAL_CONNECTION_MANAGER = None
 
 def load_connections(connections_file="./.connections.yaml"):
     """Load the Internal connection manager."""
+    global INTERNAL_CONNECTION_MANAGER
+
     if INTERNAL_CONNECTION_MANAGER:
         raise Exception("The internal connection manager has already been "
                         "loaded, this would overwrite the current one.")
