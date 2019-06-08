@@ -4,7 +4,7 @@ from simqle.connection_manager import ConnectionManager
 class Provider:
 
     def __init__(self, connection_manager= None, config_file= None):
-        
+
         if connection_manager is not None:
             self.connection_mananger = connection_manager
 

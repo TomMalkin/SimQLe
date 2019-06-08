@@ -2,7 +2,3 @@ connections:
   - name: mysql-database
     driver: mysql+pymysql://
     connection: root@localhost/testdatabase
-
-  - name: my-sqlite-database
-    driver: sqlite:///
-    connection: test-databases/test.db

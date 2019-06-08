@@ -102,6 +102,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
-# Zack's test databases
-test-databases/
