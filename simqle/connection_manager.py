@@ -144,7 +144,7 @@ class _Connection:
 
         return self._engine
 
-    def _execute_sql(self, sql, params=None):
+    def execute_sql(self, sql, params=None):
         """Execute :sql: on this connection with named :params:."""
         bound_sql = _Connection._bind_sql(sql, params)
 
@@ -165,7 +165,7 @@ class _Connection:
         finally:
             connection.close()
 
-    def _recordset(self, sql, params=None):
+    def recordset(self, sql, params=None):
         """
         Execute <sql> on <con>, with named <params>.
 
