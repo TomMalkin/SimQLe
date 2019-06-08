@@ -1,12 +1,13 @@
 """Defines the ConnectionManager and Connection Classes."""
 
-
+import os
 from yaml import safe_load
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text, bindparam
 from sqlalchemy.types import VARCHAR
 from urllib.parse import quote_plus
 from simqle.constants import DEFAULT_FILE_LOCATIONS
+from simqle.constants import DEV_MAP
 
 
 class ConnectionManager:
@@ -29,6 +30,9 @@ class ConnectionManager:
         on initialisation.
         """
         self.connections = {}
+
+        self.test_mode = os.getenv("SIMQLE_TEST", False)
+        self.dev_type = DEV_MAP[self.test_mode]
 
         if not file_name:
             # file_name isn't given so we search through the possible default
@@ -95,7 +99,7 @@ class ConnectionManager:
             return self.connections[conn_name]
 
         # A new Connection instance is required.
-        for conn_config in self.config["connections"]:
+        for conn_config in self.config[self.dev_type]:
             if conn_config["name"] == conn_name:
                 self.connections[conn_name] = _Connection(conn_config)
                 return self.connections[conn_name]
