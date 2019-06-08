@@ -10,6 +10,7 @@ from simqle.internal import (
     execute_sql,
     load_connections,
     get_connection,
+    reset_connections,
 )
 from simqle.connection_manager import ConnectionManager
 
@@ -20,4 +21,5 @@ __all__ = [
     "execute_sql",
     "load_connections",
     "ConnectionManager",
+    "reset_connections",
 ]

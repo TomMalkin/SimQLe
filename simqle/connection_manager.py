@@ -68,7 +68,11 @@ class ConnectionManager:
 
         Deprecated, only exists for backwards compatibility.
         """
-        return self.get_engine()  # TODO: add warning
+        return self.get_engine(con_name)  # TODO: add warning
+
+    def reset_connections(self):
+        """Remove all current connection objects."""
+        self.connections = {}
 
     # --- Private Methods: ---
 

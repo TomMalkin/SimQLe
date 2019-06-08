@@ -30,3 +30,8 @@ def recordset(con_name, sql, params=None):
 def get_connection(con_name):
     """Return a connection engine from the Internal ConnectionManager."""
     INTERNAL_CONNECTION_MANAGER.get_engine(con_name)
+
+
+def reset_connections():
+    """Clear the internal ConnectionManager's connections."""
+    INTERNAL_CONNECTION_MANAGER.reset_connections()
