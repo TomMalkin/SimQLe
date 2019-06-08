@@ -51,12 +51,12 @@ class ConnectionManager:
     def recordset(self, con_name, sql, params=None):
         """Return recordset from connection."""
         connection = self._get_connection(con_name)
-        return connection.recordset(con_name, sql, params=params)
+        return connection.recordset(sql, params=params)
 
     def execute_sql(self, con_name, sql, params=None):
         """Execute SQL on a given connection."""
         connection = self._get_connection(con_name)
-        return connection.execute_sql(con_name, sql, params=params)
+        connection.execute_sql(sql, params=params)
 
     def get_engine(self, con_name):
         """Return the engine of a Connection by it's name."""
@@ -88,6 +88,8 @@ class ConnectionManager:
         Connection objects are created and saved the first time they are
         called.
         """
+        # TODO: make conn_name and con_name consistent across the project
+
         # Return already initialised connection if it exists.
         if conn_name in self.connections:
             return self.connections[conn_name]
@@ -134,7 +136,7 @@ class _Connection:
 
     def _connect(self):
         """Create an engine based on sqlalchemy's create_engine."""
-        self.engine = create_engine(self.driver + self.connection_string)
+        self._engine = create_engine(self.driver + self.connection_string)
 
     @property
     def engine(self):
