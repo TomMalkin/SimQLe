@@ -98,8 +98,11 @@ test-connections:
 
 ## Author
 
-Tom Malkin - tommalkin28@gmail.com
+[Tom Malkin](https://github.com/Harlekuin)
 
+## Contributors
+
+[Zack Botkin](https://github.com/ZackBotkin)
 
 ## Release History
 
@@ -116,5 +119,3 @@ Tom Malkin - tommalkin28@gmail.com
 ## Road Map
 - all available relational databases tested.
 - scripts for easy project setup.
-- pypi upload.
-- default location connection file
