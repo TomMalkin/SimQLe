@@ -3,8 +3,6 @@
 __version__ = '0.2.0'
 
 
-# from .functions import recordset, execute_sql
-# from .connections import get_connection, load_connections, reset_connections
 from simqle.internal import (
     recordset,
     execute_sql,

@@ -98,11 +98,11 @@ test-connections:
 
 ## Author
 
-Tom Malkin - https://github.com/Harlekuin - tommalkin28@gmail.com
+[Tom Malkin](https://github.com/Harlekuin)
 
 ## Contributors
 
-Add your details here :)
+[Zack Botkin](https://github.com/ZackBotkin)
 
 ## Release History
 
