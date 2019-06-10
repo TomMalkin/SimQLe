@@ -26,8 +26,8 @@ CREATE_TABLE_SYNTAX = {
     "postgresql":
         """
         create table {} (
-            "id" serial,
-            "TestField" text
+            id serial,
+            TestField text
         )
         """.format(TEST_TABLE_NAME),
 

@@ -33,7 +33,7 @@ def update_an_entry(context):
 
 @then('the entry exists in the table')
 def entry_exists(context):
-    sql = "SELECT id, TestField FROM {}".format(TEST_TABLE_NAME)
+    sql = "SELECT id, testfield FROM {}".format(TEST_TABLE_NAME)
     # SHOULD : probably catch exact right type of exception
     rst = context.manager.recordset(
         con_name=context.connection_name,
@@ -47,7 +47,7 @@ def entry_exists(context):
         [(1, "foo")],
 
         # headings
-        ["id", "TestField"]
+        ["id", "testfield"]
     )
 
     print(correct_rst)
