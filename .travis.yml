@@ -2,13 +2,13 @@
 sudo: false
 
 # Add database services
-# services:
-#   - mysql
-#   - postgresql
-#
-# before_script:
-#   - mysql -e 'CREATE DATABASE testdatabase;'
-#   - psql -c 'create database testdatabase;' -U postgres
+services:
+  - mysql
+  - postgresql
+
+before_script:
+  - mysql -e 'CREATE DATABASE testdatabase;'
+  - psql -c 'create database testdatabase;' -U postgres
 
 # Set the build language to Python
 language: python
