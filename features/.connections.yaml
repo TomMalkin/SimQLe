@@ -6,8 +6,8 @@ connections:
 
   - name: my-mysql-database
     driver: mysql+pymysql://
-    connection: root:ready2go@localhost/MySQL
+    connection: root@localhost/testdatabase
 
   - name: my-postgresql-database
-    driver: postgresql://
-    connection: postgres:ready2go@localhost/postgres
+    driver: postgresql+psycopg2://
+    connection: postgres@localhost/testdatabase
