@@ -25,7 +25,7 @@ CREATE_TABLE_SYNTAX = {
 
     "postgresql":
         """
-        create table "{}" (
+        create table {} (
             "id" serial,
             "TestField" text
         )
