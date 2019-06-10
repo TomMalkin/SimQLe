@@ -2,7 +2,7 @@ connections:
 
   - name: my-sqlite-database
     driver: sqlite:///
-    connection: test-databases/sqlite/test.db
+    connection: /tmp/database.db
 
   - name: my-mysql-database
     driver: mysql+pymysql://

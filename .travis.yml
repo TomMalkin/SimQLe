@@ -2,13 +2,13 @@
 sudo: false
 
 # Add database services
-services:
-  - mysql
-  - postgresql
-
-before_script:
-  - mysql -e 'CREATE DATABASE testdatabase;'
-  - psql -c 'create database testdatabase;' -U postgres
+# services:
+#   - mysql
+#   - postgresql
+#
+# before_script:
+#   - mysql -e 'CREATE DATABASE testdatabase;'
+#   - psql -c 'create database testdatabase;' -U postgres
 
 # Set the build language to Python
 language: python
@@ -22,16 +22,18 @@ python:
 install:
   - pip install codecov pytest
   - pip install -r requirements.txt
-  - pip install -r ./tests/integration-tests/sqlite-tests/sqlite-requirements.txt
-  - pip install -r ./tests/integration-tests/mysql-tests/mysql-requirements.txt
-  - pip install -r ./tests/integration-tests/postgresql-tests/postgresql-requirements.txt
+  # - pip install -r ./tests/integration-tests/sqlite-tests/sqlite-requirements.txt
+  # - pip install -r ./tests/integration-tests/mysql-tests/mysql-requirements.txt
+  # - pip install -r ./tests/integration-tests/postgresql-tests/postgresql-requirements.txt
 
 # Run the unit test
 script:
   # - coverage run -m pytest ./tests/unit-tests/
-  - coverage run -m pytest ./tests/integration-tests/sqlite-tests
-  - coverage run -a -m pytest ./tests/integration-tests/mysql-tests
-  - coverage run -a -m pytest ./tests/integration-tests/postgresql-tests
+  # - coverage run -m pytest ./tests/integration-tests/sqlite-tests
+  # - coverage run -a -m pytest ./tests/integration-tests/mysql-tests
+  # - coverage run -a -m pytest ./tests/integration-tests/postgresql-tests
+  - coverage run behave
+
 
 # Push the results back to codecov
 after_success:
