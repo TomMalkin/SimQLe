@@ -5,7 +5,6 @@ DEV_MAP = {
     False: "connections",
 }
 
-
 # TODO: add other default locations.
 DEFAULT_FILE_LOCATIONS = [
     "./.connections.yaml",
