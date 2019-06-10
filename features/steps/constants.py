@@ -3,7 +3,7 @@ CONNECTIONS_FILE = "./features/.connections.yaml"
 # Create table queries. Each database has it's own SQL syntax for
 # creating tables so these are used below.
 
-TEST_TABLE_NAME = "TestTable"
+TEST_TABLE_NAME = "testtable"
 
 CREATE_TABLE_SYNTAX = {
 
@@ -11,7 +11,7 @@ CREATE_TABLE_SYNTAX = {
         """
         create table {} (
             id integer primary key autoincrement,
-            TestField text
+            testfield text
         )
         """.format(TEST_TABLE_NAME),
 
@@ -19,7 +19,7 @@ CREATE_TABLE_SYNTAX = {
         """
         create table {} (
             id integer primary key auto_increment,
-            TestField text
+            testfield text
         )
         """.format(TEST_TABLE_NAME),
 
@@ -27,7 +27,7 @@ CREATE_TABLE_SYNTAX = {
         """
         create table {} (
             id serial,
-            TestField text
+            testfield text
         )
         """.format(TEST_TABLE_NAME),
 

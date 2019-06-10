@@ -23,7 +23,7 @@ def create_a_table(context):
 @when('we insert an entry')
 def update_an_entry(context):
     insert_record_sql = """
-        INSERT INTO {} (TestField)
+        INSERT INTO {} (testfield)
         VALUES ('foo')
         """.format(TEST_TABLE_NAME)
 
@@ -40,6 +40,9 @@ def entry_exists(context):
         sql=sql
     )
 
+    print("for connection {}".format(context.connection_type))
+
+    print("rst returned:")
     print(rst)
 
     correct_rst = (
@@ -50,6 +53,7 @@ def entry_exists(context):
         ["id", "testfield"]
     )
 
+    print("the correct rst is:")
     print(correct_rst)
 
     assert rst == correct_rst
