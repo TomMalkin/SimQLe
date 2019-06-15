@@ -65,7 +65,7 @@ class ConnectionManager:
 
     def get_engine(self, con_name):
         """Return the engine of a Connection by it's name."""
-        return self._get_connection(con_name).engine()
+        return self._get_connection(con_name).engine
 
     def get_connection(self, con_name):
         """

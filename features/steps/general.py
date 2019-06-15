@@ -135,6 +135,7 @@ def get_connection_object(context):
 
 @then("we can reset the connections")
 def reset_connections(context):
+    context.manager.get_engine("my-sqlite-database")
     assert context.manager.connections != {}
     context.manager.reset_connections()
     assert context.manager.connections == {}
