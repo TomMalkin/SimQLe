@@ -22,3 +22,13 @@ Feature: database connections
 		AND we create a table
 		AND we insert an entry
 		Then the entry exists in the table
+
+	@fixture.sqlite
+	Scenario: get engine test
+		When we load a sqlite connection from the test connections file
+		Then we can get the connection object
+
+	@fixture.sqlite
+	Scenario: reset connections test
+		When we load a sqlite connection from the test connections file
+		Then we can reset the connections

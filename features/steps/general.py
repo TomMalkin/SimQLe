@@ -4,7 +4,7 @@ from simqle.exceptions import NoConnectionsFileError
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
 import os
 import yaml
-
+from sqlalchemy.engine import Engine
 
 # --- Given ---
 
@@ -122,5 +122,21 @@ def exception_step(context, type, msg):
         "Invalid exception - expected " + type
 
     assert context.exc.message == msg, "Invalid message - expected " + msg
+
+
+@then("we can get the connection object")
+def get_connection_object(context):
+    engine = context.manager.get_engine("my-sqlite-database")
+    assert isinstance(engine, Engine)
+
+    engine = context.manager.get_connection("my-sqlite-database")
+    assert isinstance(engine, Engine)
+
+
+@then("we can reset the connections")
+def reset_connections(context):
+    assert context.manager.connections != {}
+    context.manager.reset_connections()
+    assert context.manager.connections == {}
 
 # --- Then ---
