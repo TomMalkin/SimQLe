@@ -15,3 +15,15 @@ def sqlite_cleanup():
         os.remove("/tmp/database.db")
     except OSError:
         pass
+
+
+@fixture
+def connections_file(context):
+    context.add_cleanup(connections_file_cleanup)
+
+
+def connections_file_cleanup():
+    try:
+        os.remove("./.connections.yaml")
+    except OSError:
+        pass

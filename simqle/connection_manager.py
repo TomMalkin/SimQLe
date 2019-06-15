@@ -37,10 +37,10 @@ class ConnectionManager:
         if not file_name:
             # file_name isn't given so we search through the possible default
             # file locations, which are in order of priority.
-
             for default_file_name in DEFAULT_FILE_LOCATIONS:
                 try:
                     self.config = self._load_yaml_file(default_file_name)
+                    return
                 except:  # noqa TODO: add file not found specific exception.
                     continue
 

@@ -42,8 +42,8 @@ def update_an_entry(context):
                                 sql=insert_record_sql)
 
 
-@when("we create a .connections.yaml file in the root")
-def create_yaml_file():
+@given("we create a .connections.yaml file in the root")
+def create_yaml_file(context):
     # remove any existing file
     try:
         os.remove("./.connections.yaml")
@@ -52,22 +52,16 @@ def create_yaml_file():
 
     # define our test file
     connections_file = {
-        "connections": {
+        "connections": [{
             "name": "my-sqlite-database",
             "driver": "sqlite:///",
-            "connection": "/tmp/test-database.db",
-        }
+            "connection": "/tmp/database.db",
+        }]
     }
 
     # write to our test file in a default location
     with open("./.connections.yaml", "w") as outfile:
         yaml.dump(connections_file, outfile)
-
-    # remove it again
-    try:
-        os.remove("./.connections.yaml")
-    except OSError:
-        pass
 
 
 @then("the entry exists in the table")
