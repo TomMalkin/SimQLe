@@ -6,19 +6,19 @@ Feature: database connections
 
 	@fixture.sqlite
 	Scenario: sqlite test
-		Given we have a sqlite connection
-		When we create a table
+		When we load a sqlite connection from the test connections file
+		AND we create a table
 		AND we insert an entry
 		Then the entry exists in the table
 
 	Scenario: mysql test
-		Given we have a mysql connection
-		When we create a table
+		When we load a mysql connection from the test connections file
+		AND we create a table
 		AND we insert an entry
 		Then the entry exists in the table
 
 	Scenario: postgresql test
-		Given we have a postgresql connection
-		When we create a table
+		When we load a postgresql connection from the test connections file
+		AND we create a table
 		AND we insert an entry
 		Then the entry exists in the table

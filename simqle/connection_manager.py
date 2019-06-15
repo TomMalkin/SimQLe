@@ -6,8 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql import text, bindparam
 from sqlalchemy.types import VARCHAR
 from urllib.parse import quote_plus
-from simqle.constants import DEFAULT_FILE_LOCATIONS
-from simqle.constants import DEV_MAP
+from simqle.constants import DEFAULT_FILE_LOCATIONS, DEV_MAP
+from simqle.exceptions import NoConnectionsFileError
 
 
 class ConnectionManager:
@@ -44,8 +44,9 @@ class ConnectionManager:
                 except:  # noqa TODO: add file not found specific exception.
                     continue
 
-            raise Exception("No file_name is specified and no files in "
-                            "default locations are found.")
+            raise NoConnectionsFileError(
+                "No file_name is specified and no files in default "
+                "locations are found.")
 
         else:
             self.config = self._load_yaml_file(file_name)

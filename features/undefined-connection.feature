@@ -6,9 +6,16 @@ Feature: Connecting to Default Files
 
 	@fixture.connections.file
 	@fixture.sqlite
-	Scenario: no filename test
-		Given we create a .connections.yaml file in the root
-		AND we have an undefined connection file
-		When we create a table
+	Scenario: load a connections file from a default location
+		Given we have a .connections.yaml file in root
+		When we load a sqlite connection from a default location
+		AND we create a table
 		AND we insert an entry
 		Then the entry exists in the table
+
+	@fixture.connections.file
+	@fixture.sqlite
+	Scenario: An error occurs when no default files are found
+		Given we don't have a .connections.yaml files in default locations
+		When we load a sqlite connection from a default location
+		Then it throws a NoConnectionsFileError with message "No file_name is specified and no files in default locations are found."
