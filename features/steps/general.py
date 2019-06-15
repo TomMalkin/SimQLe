@@ -1,16 +1,27 @@
 from behave import given, when, then, step
 from simqle import ConnectionManager
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
+import os
+import yaml
 
 
-@given('we have a {connection_type} connection')
-def step_impl(context, connection_type):
+@given("we have a {connection_type} connection")
+def step_connections(context, connection_type):
+    """Set up the context manager for a given connection_type."""
     context.connection_type = connection_type
     context.connection_name = "my-{}-database".format(context.connection_type)
     context.manager = ConnectionManager(file_name=CONNECTIONS_FILE)
 
 
-@when('we create a table')
+@given("we have an undefined connection file")
+def step_undefined_connection(context):
+    """Set up the context manager with an undefined file."""
+    context.connection_type = "sqlite"
+    context.connection_name = "my-sqlite-database"
+    context.manager = ConnectionManager()
+
+
+@when("we create a table")
 def create_a_table(context):
     create_table_sql = CREATE_TABLE_SYNTAX[context.connection_type]
 
@@ -20,7 +31,7 @@ def create_a_table(context):
     )
 
 
-@when('we insert an entry')
+@when("we insert an entry")
 def update_an_entry(context):
     insert_record_sql = """
         INSERT INTO {} (testfield)
@@ -31,7 +42,35 @@ def update_an_entry(context):
                                 sql=insert_record_sql)
 
 
-@then('the entry exists in the table')
+@when("we create a .connections.yaml file in the root")
+def create_yaml_file():
+    # remove any existing file
+    try:
+        os.remove("./.connections.yaml")
+    except OSError:
+        pass
+
+    # define our test file
+    connections_file = {
+        "connections": {
+            "name": "my-sqlite-database",
+            "driver": "sqlite:///",
+            "connection": "/tmp/test-database.db",
+        }
+    }
+
+    # write to our test file in a default location
+    with open("./.connections.yaml", "w") as outfile:
+        yaml.dump(connections_file, outfile)
+
+    # remove it again
+    try:
+        os.remove("./.connections.yaml")
+    except OSError:
+        pass
+
+
+@then("the entry exists in the table")
 def entry_exists(context):
     sql = "SELECT id, testfield FROM {}".format(TEST_TABLE_NAME)
     # SHOULD : probably catch exact right type of exception

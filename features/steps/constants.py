@@ -1,3 +1,5 @@
+"""Constants for BDD Testing."""
+
 CONNECTIONS_FILE = "./features/.connections.yaml"
 
 # Create table queries. Each database has it's own SQL syntax for
