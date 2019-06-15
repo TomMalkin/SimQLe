@@ -1,10 +1,11 @@
 from behave import given, when, then, step
 from simqle import ConnectionManager
-from simqle.exceptions import NoConnectionsFileError
+from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
 import os
 import yaml
 from sqlalchemy.engine import Engine
+
 
 # --- Given ---
 
@@ -43,44 +44,56 @@ def remove_default_connections_files(context):
 
 # --- When ---
 
-@when("we load a {connection_type} connection from the test connections file")
-def load_test_connection_file(context, connection_type):
+@when("we load the test connections file")
+def load_test_connection_file(context):
     """Set up the context manager for a given connection_type."""
-    context.connection_type = connection_type
-    context.connection_name = "my-{}-database".format(context.connection_type)
-    context.manager = ConnectionManager(file_name=CONNECTIONS_FILE)
+    # context.connection_type = connection_type
+    # context.connection_name = "my-{}-database".format(context.connection_type)
+    try:
+        context.manager = ConnectionManager(file_name=CONNECTIONS_FILE)
+        context.exc = None
+    except Exception as e:
+        context.exc = e
 
 
-@when("we load a sqlite connection from a default location")
+@when("we load a connection file from a default location")
 def load_default_connection_file(context):
     """Set up the context manager for a given connection_type."""
     try:
-        context.connection_type = "sqlite"
-        context.connection_name = "my-sqlite-database"
+        # context.connection_type = "sqlite"
+        # context.connection_name = "my-sqlite-database"
         context.manager = ConnectionManager()
         context.exc = None
     except Exception as e:
         context.exc = e
 
 
-@when("we create a table")
-def create_a_table(context):
-    create_table_sql = CREATE_TABLE_SYNTAX[context.connection_type]
+@when("we create a table on {con_type}")
+def create_a_table(context, con_type):
+    # create_table_sql = CREATE_TABLE_SYNTAX[context.connection_type]
+    create_table_sql = CREATE_TABLE_SYNTAX.get(con_type)
+    con_name = "my-{}-database".format(con_type)
 
-    context.manager.execute_sql(
-        con_name=context.connection_name,
-        sql=create_table_sql
-    )
+    try:
+        context.manager.execute_sql(
+            con_name=con_name,
+            sql=create_table_sql
+        )
+        context.exc = None
+    except Exception as e:
+        context.exc = e
 
 
-@when("we insert an entry")
-def update_an_entry(context):
+@when("we insert an entry on {con_type}")
+def update_an_entry(context, con_type):
     insert_record_sql = """
         INSERT INTO {} (testfield)
         VALUES ('foo')
         """.format(TEST_TABLE_NAME)
 
-    context.manager.execute_sql(con_name=context.connection_name,
+    con_name = "my-{}-database".format(con_type)
+
+    context.manager.execute_sql(con_name=con_name,
                                 sql=insert_record_sql)
 
 # --- When ---
@@ -88,19 +101,20 @@ def update_an_entry(context):
 
 # --- Then ---
 
-@then("the entry exists in the table")
-def entry_exists(context):
+@then("the entry exists in the table on {con_type}")
+def entry_exists(context, con_type):
     sql = "SELECT id, testfield FROM {}".format(TEST_TABLE_NAME)
     # SHOULD : probably catch exact right type of exception
+    con_name = "my-{}-database".format(con_type)
     rst = context.manager.recordset(
-        con_name=context.connection_name,
+        con_name=con_name,
         sql=sql
     )
 
-    print("for connection {}".format(context.connection_type))
-
-    print("rst returned:")
-    print(rst)
+    # print("for connection {}".format(context.connection_type))
+    #
+    # print("rst returned:")
+    # print(rst)
 
     correct_rst = (
         # data
@@ -110,8 +124,8 @@ def entry_exists(context):
         ["id", "testfield"]
     )
 
-    print("the correct rst is:")
-    print(correct_rst)
+    # print("the correct rst is:")
+    # print(correct_rst)
 
     assert rst == correct_rst
 
@@ -124,7 +138,7 @@ def exception_step(context, type, msg):
     assert context.exc.message == msg, "Invalid message - expected " + msg
 
 
-@then("we can get the connection object")
+@then("we can get the connection object for {connection}")
 def get_connection_object(context):
     engine = context.manager.get_engine("my-sqlite-database")
     assert isinstance(engine, Engine)

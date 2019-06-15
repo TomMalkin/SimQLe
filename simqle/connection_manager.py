@@ -7,7 +7,7 @@ from sqlalchemy.sql import text, bindparam
 from sqlalchemy.types import VARCHAR
 from urllib.parse import quote_plus
 from simqle.constants import DEFAULT_FILE_LOCATIONS, DEV_MAP
-from simqle.exceptions import NoConnectionsFileError
+from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
 
 
 class ConnectionManager:
@@ -105,7 +105,7 @@ class ConnectionManager:
                 self.connections[conn_name] = _Connection(conn_config)
                 return self.connections[conn_name]
 
-        raise Exception("Unknown connection {}".format(conn_name))
+        raise UnknownConnectionError("Unknown connection {}".format(conn_name))
 
 
 class _Connection:

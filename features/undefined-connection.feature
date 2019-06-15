@@ -13,7 +13,6 @@ Feature: Connecting to Default Files
 		AND we insert an entry
 		Then the entry exists in the table
 
-	@fixture.connections.file
 	@fixture.sqlite
 	Scenario: An error occurs when no default files are found
 		Given we don't have a .connections.yaml files in default locations
