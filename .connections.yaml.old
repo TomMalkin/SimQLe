@@ -1,9 +1,0 @@
-connections:
-
-  - name: my-sqlite-database
-    driver: sqlite:///
-    connection: tests/integration-tests/behave-tests/test-databases/sqlite/test.db
-
-  - name: my-mysql-database
-    driver: mysql+pymysql://
-    connection: root:ready2go@localhost/MySQL

@@ -1,9 +1,10 @@
-from behave import given, when, then, step
+"""General BDD Steps."""
+
+from behave import given, when, then
 from simqle import (
     ConnectionManager, load_connections, get_engine, get_connection,
     execute_sql, recordset, reset_connections
 )
-from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
 from simqle import internal
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
 import os
@@ -42,6 +43,7 @@ def add_connections_file_to_root(context):
 
 @given("we don't have a .connections.yaml files in default locations")
 def remove_default_connections_files(context):
+    """Remove any existing connections file in the root of the project."""
     try:
         os.remove("./.connections.yaml")
     except OSError:
@@ -76,7 +78,7 @@ def load_default_connection_file(context):
 
 @when("we create a table on {con_type}")
 def create_a_table(context, con_type):
-    # create_table_sql = CREATE_TABLE_SYNTAX[context.connection_type]
+    """Create a table on a specific connections."""
     create_table_sql = CREATE_TABLE_SYNTAX.get(con_type)
     con_name = "my-{}-database".format(con_type)
 
@@ -92,6 +94,7 @@ def create_a_table(context, con_type):
 
 @when("we execute sql with an error on {con_type}")
 def execute_invalid_sql(context, con_type):
+    """Execute intentionally invalid sql on a specific connection."""
     sql = "Invalid syntax"
     con_name = "my-{}-database".format(con_type)
 
@@ -107,6 +110,7 @@ def execute_invalid_sql(context, con_type):
 
 @when("we insert an entry on {con_type}")
 def update_an_entry(context, con_type):
+    """Update an entry on a connection type."""
     con_name = "my-{}-database".format(con_type)
 
     insert_record_sql = """
@@ -123,12 +127,13 @@ def update_an_entry(context, con_type):
 
 @when("we internally load connections")
 def load_internal_connections(context):
+    """Load the internal connections."""
     load_connections()
 
 
 @when("we create an interal table on {con_type}")
 def create_an_internal_table(context, con_type):
-    # create_table_sql = CREATE_TABLE_SYNTAX[context.connection_type]
+    """Create a table on an internal connection."""
     create_table_sql = CREATE_TABLE_SYNTAX.get(con_type)
     con_name = "my-{}-database".format(con_type)
 
@@ -144,6 +149,7 @@ def create_an_internal_table(context, con_type):
 
 @when("we insert an internal entry on {con_type}")
 def update_an_internal_entry(context, con_type):
+    """Update an entry in an internal connection."""
     con_name = "my-{}-database".format(con_type)
 
     insert_record_sql = """
@@ -164,6 +170,7 @@ def update_an_internal_entry(context, con_type):
 
 @then("the entry exists in the table on {con_type}")
 def entry_exists(context, con_type):
+    """Test if an entry exists and is correct."""
     sql = "SELECT id, testfield FROM {}".format(TEST_TABLE_NAME)
     # SHOULD : probably catch exact right type of exception
     con_name = "my-{}-database".format(con_type)
@@ -184,7 +191,8 @@ def entry_exists(context, con_type):
 
 
 @then("the entry exists in the internal table on {con_type}")
-def entry_exists(context, con_type):
+def internal_entry_exists(context, con_type):
+    """Test if internal entry exists and is correct."""
     sql = "SELECT id, testfield FROM {}".format(TEST_TABLE_NAME)
     # SHOULD : probably catch exact right type of exception
     con_name = "my-{}-database".format(con_type)
@@ -206,6 +214,7 @@ def entry_exists(context, con_type):
 
 @then('it throws a {type} with message "{msg}"')
 def exception_step(context, type, msg):
+    """Check if type and msg of an exception is correct."""
     assert isinstance(context.exc, eval(type)), \
         "Invalid exception - expected " + type
 
@@ -214,12 +223,14 @@ def exception_step(context, type, msg):
 
 @then("it throws a {type}")
 def exception_step_no_msg(context, type):
+    """Test if just the type of the exception is correct."""
     assert isinstance(context.exc, eval(type)), \
         "Invalid exception - expected " + type
 
 
 @then("we can get the connection object for {connection}")
 def get_connection_object(context, connection):
+    """Get the connection object."""
     con_name = "my-{}-database".format(connection)
 
     engine = context.manager.get_engine(con_name)
@@ -231,6 +242,7 @@ def get_connection_object(context, connection):
 
 @then("we can reset the connections")
 def reset_connections_test(context):
+    """Test resetting the connection."""
     context.manager.get_engine("my-sqlite-database")
     assert context.manager.connections != {}
     context.manager.reset_connections()
@@ -239,6 +251,7 @@ def reset_connections_test(context):
 
 @then("we can internally reset the connections")
 def reset_internal_connections_test(context):
+    """Test resetting the internal connection."""
     get_engine("my-sqlite-database")
     assert internal.INTERNAL_CONNECTION_MANAGER.connections != {}
     reset_connections()
@@ -247,6 +260,7 @@ def reset_internal_connections_test(context):
 
 @then("the connection has been properly escaped")
 def check_escaped_connection(context):
+    """Check if connection has been url escaped correctly."""
     connection = context.manager.get_engine("my-sqlite-database-escaped")
     url = str(connection.url)
     assert url == "sqlite:///" + quote_plus("A connection with spaces")
@@ -254,6 +268,7 @@ def check_escaped_connection(context):
 
 @then("the internal connection is loaded")
 def internal_connection_is_loaded(context):
+    """Check if internal connection has been loaded."""
     engine = get_engine("my-sqlite-database")
     assert isinstance(engine, Engine)
 
