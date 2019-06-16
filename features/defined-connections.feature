@@ -25,12 +25,12 @@ Feature: database connections
 
 	@fixture.sqlite
 	Scenario: get engine test
-		When we load a sqlite connection from the test connections file
+		When we load the test connections file
 		Then we can get the connection object for sqlite
 
 	@fixture.sqlite
 	Scenario: reset connections test
-		When we load a sqlite connection from the test connections file
+		When we load the test connections file
 		Then we can reset the connections
 
 	@fixture.sqlite

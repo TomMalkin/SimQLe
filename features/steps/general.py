@@ -139,11 +139,13 @@ def exception_step(context, type, msg):
 
 
 @then("we can get the connection object for {connection}")
-def get_connection_object(context):
-    engine = context.manager.get_engine("my-sqlite-database")
+def get_connection_object(context, connection):
+    con_name = "my-{}-database".format(connection)
+
+    engine = context.manager.get_engine(con_name)
     assert isinstance(engine, Engine)
 
-    engine = context.manager.get_connection("my-sqlite-database")
+    engine = context.manager.get_connection(con_name)
     assert isinstance(engine, Engine)
 
 
