@@ -9,6 +9,7 @@ from simqle.internal import (
     load_connections,
     get_connection,
     reset_connections,
+    get_engine,
 )
 from simqle.connection_manager import ConnectionManager
 

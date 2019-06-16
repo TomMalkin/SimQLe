@@ -1,5 +1,7 @@
 from behave import given, when, then, step
-from simqle import ConnectionManager
+from simqle import (
+    ConnectionManager, load_connections, get_engine, get_connection
+)
 from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
 import os
@@ -115,6 +117,11 @@ def update_an_entry(context, con_type):
     context.manager.execute_sql(con_name=con_name,
                                 sql=insert_record_sql)
 
+
+@when("we internally load connections")
+def load_internal_connections(context):
+    load_connections()
+
 # --- When ---
 
 
@@ -187,5 +194,14 @@ def check_escaped_connection(context):
     connection = context.manager.get_engine("my-sqlite-database-escaped")
     url = str(connection.url)
     assert url == "sqlite:///" + quote_plus("A connection with spaces")
+
+
+@then("the internal connection is loaded")
+def internal_connection_is_loaded(context):
+    engine = get_engine("my-sqlite-database")
+    assert isinstance(engine, Engine)
+
+    engine = get_connection("my-sqlite-database")
+    assert isinstance(engine, Engine)
 
 # --- Then ---
