@@ -1,6 +1,7 @@
 from behave import given, when, then, step
 from simqle import (
-    ConnectionManager, load_connections, get_engine, get_connection
+    ConnectionManager, load_connections, get_engine, get_connection,
+    execute_sql, recordset
 )
 from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
@@ -53,8 +54,6 @@ def remove_default_connections_files(context):
 @when("we load the test connections file")
 def load_test_connection_file(context):
     """Set up the context manager for a given connection_type."""
-    # context.connection_type = connection_type
-    # context.connection_name = "my-{}-database".format(context.connection_type)
     try:
         context.manager = ConnectionManager(file_name=CONNECTIONS_FILE)
         context.exc = None
@@ -120,21 +119,42 @@ def update_an_entry(context, con_type):
                                 sql=insert_record_sql,
                                 params=params)
 
-    # insert_record_sql = """
-    #     INSERT INTO {} (testfield)
-    #     VALUES (:int_value),
-    #     """.format(TEST_TABLE_NAME)
-    #
-    # params = {"str_value": "foo", "int_value": 1}
-    #
-    # context.manager.execute_sql(con_name=con_name,
-    #                             sql=insert_record_sql,
-    #                             params=params)
-
 
 @when("we internally load connections")
 def load_internal_connections(context):
     load_connections()
+
+
+@when("we create an interal table on {con_type}")
+def create_an_internal_table(context, con_type):
+    # create_table_sql = CREATE_TABLE_SYNTAX[context.connection_type]
+    create_table_sql = CREATE_TABLE_SYNTAX.get(con_type)
+    con_name = "my-{}-database".format(con_type)
+
+    try:
+        execute_sql(
+            con_name=con_name,
+            sql=create_table_sql
+        )
+        context.exc = None
+    except Exception as e:
+        context.exc = e
+
+
+@when("we insert an internal entry on {con_type}")
+def update_an_internal_entry(context, con_type):
+    con_name = "my-{}-database".format(con_type)
+
+    insert_record_sql = """
+        INSERT INTO {} (testfield)
+        VALUES (:str_value), (:int_value)
+        """.format(TEST_TABLE_NAME)
+
+    params = {"str_value": "foo", "int_value": 1}
+
+    execute_sql(con_name=con_name,
+                sql=insert_record_sql,
+                params=params)
 
 # --- When ---
 
@@ -147,6 +167,27 @@ def entry_exists(context, con_type):
     # SHOULD : probably catch exact right type of exception
     con_name = "my-{}-database".format(con_type)
     rst = context.manager.recordset(
+        con_name=con_name,
+        sql=sql
+    )
+
+    correct_rst = (
+        # data
+        [(1, "foo"), (2, "1")],
+
+        # headings
+        ["id", "testfield"]
+    )
+
+    assert rst == correct_rst
+
+
+@then("the entry exists in the internal table on {con_type}")
+def entry_exists(context, con_type):
+    sql = "SELECT id, testfield FROM {}".format(TEST_TABLE_NAME)
+    # SHOULD : probably catch exact right type of exception
+    con_name = "my-{}-database".format(con_type)
+    rst = recordset(
         con_name=con_name,
         sql=sql
     )
