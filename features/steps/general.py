@@ -6,6 +6,7 @@ from simqle import (
     execute_sql, recordset, reset_connections
 )
 from simqle import internal
+from simqle.exceptions import *
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
 import os
 import yaml
