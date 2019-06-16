@@ -107,15 +107,29 @@ def execute_invalid_sql(context, con_type):
 
 @when("we insert an entry on {con_type}")
 def update_an_entry(context, con_type):
-    insert_record_sql = """
-        INSERT INTO {} (testfield)
-        VALUES ('foo')
-        """.format(TEST_TABLE_NAME)
-
     con_name = "my-{}-database".format(con_type)
 
+    insert_record_sql = """
+        INSERT INTO {} (testfield)
+        VALUES (:str_value), (:int_value)
+        """.format(TEST_TABLE_NAME)
+
+    params = {"str_value": "foo", "int_value": 1}
+
     context.manager.execute_sql(con_name=con_name,
-                                sql=insert_record_sql)
+                                sql=insert_record_sql,
+                                params=params)
+
+    # insert_record_sql = """
+    #     INSERT INTO {} (testfield)
+    #     VALUES (:int_value),
+    #     """.format(TEST_TABLE_NAME)
+    #
+    # params = {"str_value": "foo", "int_value": 1}
+    #
+    # context.manager.execute_sql(con_name=con_name,
+    #                             sql=insert_record_sql,
+    #                             params=params)
 
 
 @when("we internally load connections")
@@ -137,21 +151,13 @@ def entry_exists(context, con_type):
         sql=sql
     )
 
-    # print("for connection {}".format(context.connection_type))
-    #
-    # print("rst returned:")
-    # print(rst)
-
     correct_rst = (
         # data
-        [(1, "foo")],
+        [(1, "foo"), (2, "1")],
 
         # headings
         ["id", "testfield"]
     )
-
-    # print("the correct rst is:")
-    # print(correct_rst)
 
     assert rst == correct_rst
 
