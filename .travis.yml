@@ -22,16 +22,9 @@ python:
 install:
   - pip install codecov pytest
   - pip install -r requirements.txt
-  # - pip install -r ./tests/integration-tests/sqlite-tests/sqlite-requirements.txt
-  # - pip install -r ./tests/integration-tests/mysql-tests/mysql-requirements.txt
-  # - pip install -r ./tests/integration-tests/postgresql-tests/postgresql-requirements.txt
 
 # Run the unit test
 script:
-  # - coverage run -m pytest ./tests/unit-tests/
-  # - coverage run -m pytest ./tests/integration-tests/sqlite-tests
-  # - coverage run -a -m pytest ./tests/integration-tests/mysql-tests
-  # - coverage run -a -m pytest ./tests/integration-tests/postgresql-tests
   - coverage run -m behave
 
 
