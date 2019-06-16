@@ -32,7 +32,7 @@ class ConnectionManager:
         self.connections = {}
 
         self.test_mode = os.getenv("SIMQLE_TEST", False)
-        self.dev_type = DEV_MAP[self.test_mode]
+        self.dev_type = DEV_MAP[bool(self.test_mode)]
 
         if not file_name:
             # file_name isn't given so we search through the possible default

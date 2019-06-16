@@ -13,6 +13,8 @@ def sqlite_cleanup():
     # make sure the database file doesn't exist before running
     try:
         os.remove("/tmp/database.db")
+        os.remove("/tmp/production-database.db")
+        os.remove("/tmp/development-database.db")
     except OSError:
         pass
 
