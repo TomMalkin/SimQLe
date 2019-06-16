@@ -6,8 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql import text, bindparam
 from sqlalchemy.types import VARCHAR
 from urllib.parse import quote_plus
-from simqle.constants import DEFAULT_FILE_LOCATIONS
-from simqle.constants import DEV_MAP
+from simqle.constants import DEFAULT_FILE_LOCATIONS, DEV_MAP
+from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
 
 
 class ConnectionManager:
@@ -37,15 +37,16 @@ class ConnectionManager:
         if not file_name:
             # file_name isn't given so we search through the possible default
             # file locations, which are in order of priority.
-
             for default_file_name in DEFAULT_FILE_LOCATIONS:
                 try:
                     self.config = self._load_yaml_file(default_file_name)
+                    return
                 except:  # noqa TODO: add file not found specific exception.
                     continue
 
-            raise Exception("No file_name is specified and no files in "
-                            "default locations are found.")
+            raise NoConnectionsFileError(
+                "No file_name is specified and no files in default "
+                "locations are found.")
 
         else:
             self.config = self._load_yaml_file(file_name)
@@ -64,7 +65,7 @@ class ConnectionManager:
 
     def get_engine(self, con_name):
         """Return the engine of a Connection by it's name."""
-        return self._get_connection(con_name).engine()
+        return self._get_connection(con_name).engine
 
     def get_connection(self, con_name):
         """
@@ -104,7 +105,7 @@ class ConnectionManager:
                 self.connections[conn_name] = _Connection(conn_config)
                 return self.connections[conn_name]
 
-        raise Exception("Unknown connection {}".format(conn_name))
+        raise UnknownConnectionError("Unknown connection {}".format(conn_name))
 
 
 class _Connection:
