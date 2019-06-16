@@ -1,7 +1,7 @@
 from behave import given, when, then, step
 from simqle import (
     ConnectionManager, load_connections, get_engine, get_connection,
-    execute_sql, recordset
+    execute_sql, recordset, reset_connections
 )
 from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
 from simqle import internal
@@ -230,7 +230,7 @@ def get_connection_object(context, connection):
 
 
 @then("we can reset the connections")
-def reset_connections(context):
+def reset_connections_test(context):
     context.manager.get_engine("my-sqlite-database")
     assert context.manager.connections != {}
     context.manager.reset_connections()
@@ -238,7 +238,7 @@ def reset_connections(context):
 
 
 @then("we can internally reset the connections")
-def reset_internal_connections(context):
+def reset_internal_connections_test(context):
     get_engine("my-sqlite-database")
     assert internal.INTERNAL_CONNECTION_MANAGER.connections != {}
     reset_connections()
