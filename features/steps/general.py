@@ -238,7 +238,7 @@ def reset_connections(context):
 
 
 @then("we can internally reset the connections")
-def reset_connections(context):
+def reset_internal_connections(context):
     get_engine("my-sqlite-database")
     assert internal.INTERNAL_CONNECTION_MANAGER.connections != {}
     reset_connections()
