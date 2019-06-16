@@ -45,3 +45,9 @@ Feature: database connections
 		Given we have a .connections.yaml file in root
 		When we load a connection file from a default location
 		Then the connection has been properly escaped
+
+	@fixture.sqlite
+	Scenario: A SQL error raises an exception
+		When we load the test connections file
+		AND we execute sql with an error on sqlite
+		Then it throws a Exception

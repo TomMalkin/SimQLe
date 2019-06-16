@@ -88,6 +88,21 @@ def create_a_table(context, con_type):
         context.exc = e
 
 
+@when("we execute sql with an error on {con_type}")
+def execute_invalid_sql(context, con_type):
+    sql = "Invalid syntax"
+    con_name = "my-{}-database".format(con_type)
+
+    try:
+        context.manager.execute_sql(
+            con_name=con_name,
+            sql=sql
+        )
+        context.exc = None
+    except Exception as e:
+        context.exc = e
+
+
 @when("we insert an entry on {con_type}")
 def update_an_entry(context, con_type):
     insert_record_sql = """
@@ -140,6 +155,12 @@ def exception_step(context, type, msg):
         "Invalid exception - expected " + type
 
     assert context.exc.message == msg, "Invalid message - expected " + msg
+
+
+@then("it throws a {type}")
+def exception_step_no_msg(context, type):
+    assert isinstance(context.exc, eval(type)), \
+        "Invalid exception - expected " + type
 
 
 @then("we can get the connection object for {connection}")
