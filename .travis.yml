@@ -31,3 +31,10 @@ script:
 # Push the results back to codecov
 after_success:
   - codecov
+
+deploy:
+  provider: pypi
+  user: Harlekuin
+  password: "$pypi-password"
+  on:
+    branch: master
