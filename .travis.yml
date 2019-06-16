@@ -35,6 +35,7 @@ after_success:
 deploy:
   provider: pypi
   user: Harlekuin
-  password: "$pypi-password"
+  password: "$pypipassword"
   on:
     branch: master
+    python: 3.6
