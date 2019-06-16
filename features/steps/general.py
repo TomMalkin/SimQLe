@@ -5,6 +5,7 @@ from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
 import os
 import yaml
 from sqlalchemy.engine import Engine
+from urllib.parse import quote_plus
 
 
 # --- Given ---
@@ -20,12 +21,15 @@ def add_connections_file_to_root(context):
 
     # define our test file
     connections_file = {
-        "connections": [{
-            "name": "my-sqlite-database",
-            "driver": "sqlite:///",
-            "connection": "/tmp/database.db",
-        }]
-    }
+        "connections": [
+                {"name": "my-sqlite-database",
+                 "driver": "sqlite:///",
+                 "connection": "/tmp/database.db", },
+                {"name": "my-sqlite-database-escaped",
+                 "driver": "sqlite:///",
+                 "connection": "A connection with spaces",
+                 "url_escape": True, },
+                ]}
 
     # write to our test file in a default location
     with open("./.connections.yaml", "w") as outfile:
@@ -155,5 +159,12 @@ def reset_connections(context):
     assert context.manager.connections != {}
     context.manager.reset_connections()
     assert context.manager.connections == {}
+
+
+@then("the connection has been properly escaped")
+def check_escaped_connection(context):
+    connection = context.manager.get_engine("my-sqlite-database-escaped")
+    url = str(connection.url)
+    assert url == "sqlite:///" + quote_plus("A connection with spaces")
 
 # --- Then ---

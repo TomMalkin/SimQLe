@@ -38,3 +38,10 @@ Feature: database connections
 		When we load the test connections file
 		AND we create a table on wrongname
 		Then it throws a UnknownConnectionError with message "Unknown connection my-wrongname-database"
+
+	@fixture.connections.file
+	@fixture.sqlite
+	Scenario: A connection with url-escape is suitable
+		Given we have a .connections.yaml file in root
+		When we load a connection file from a default location
+		Then the connection has been properly escaped
