@@ -11,6 +11,16 @@ Feature: database connections
 		When we internally load connections
 		Then the internal connection is loaded
 
+
+	@fixture.connections.file
+	@fixture.sqlite
+	Scenario: Internal Manager reset connections
+		Given we have a .connections.yaml file in root
+		When we internally load connections
+		Then we can internally reset the connections
+
+
+
 	@fixture.connections.file
 	@fixture.sqlite
 	Scenario: Internal Manager test

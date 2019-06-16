@@ -4,6 +4,7 @@ from simqle import (
     execute_sql, recordset
 )
 from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
+from simqle import internal
 from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
 import os
 import yaml
@@ -234,6 +235,14 @@ def reset_connections(context):
     assert context.manager.connections != {}
     context.manager.reset_connections()
     assert context.manager.connections == {}
+
+
+@then("we can internally reset the connections")
+def reset_connections(context):
+    get_engine("my-sqlite-database")
+    assert internal.INTERNAL_CONNECTION_MANAGER.connections != {}
+    reset_connections()
+    assert internal.INTERNAL_CONNECTION_MANAGER.connections == {}
 
 
 @then("the connection has been properly escaped")
