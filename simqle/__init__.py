@@ -21,4 +21,5 @@ __all__ = [
     "load_connections",
     "ConnectionManager",
     "reset_connections",
+    "get_engine",
 ]
