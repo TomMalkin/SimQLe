@@ -1,4 +1,0 @@
-connections:
-  - name: mysql-database
-    driver: mysql+pymysql://
-    connection: root@localhost/testdatabase

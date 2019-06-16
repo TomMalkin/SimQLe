@@ -57,6 +57,22 @@ to `True`. This will cause the `load_connections` function to load the
 type of database), and will cause the code in your project to run exactly the
 same, but instead connect to your defined test connections instead.
 
+### Running the tests
+
+To run the tests, you will need to have the "behave" package installed (TODO : put this in the setup.py). For now, do this by running
+
+    pip install behave
+
+Once installed, navigate to
+
+  tests/integration-tests/behave-tests
+
+Once there, run
+
+  PYTHONPATH=../../.. behave
+
+The python path will need to be set so that behave picks up the projects from the root directory. You can also install the project locally to avoid this.
+
 
 ## The .connections.yaml File
 Define the connection strings for production and test servers. The names of the `test-connections` should mirror the `connections` names. The file `.connections.yaml` should be in the root of your project. Each connection will be referred to by its name.
@@ -98,8 +114,11 @@ test-connections:
 
 ## Author
 
-Tom Malkin - tommalkin28@gmail.com
+[Tom Malkin](https://github.com/Harlekuin)
 
+## Contributors
+
+[Zack Botkin](https://github.com/ZackBotkin)
 
 ## Release History
 
@@ -116,5 +135,3 @@ Tom Malkin - tommalkin28@gmail.com
 ## Road Map
 - all available relational databases tested.
 - scripts for easy project setup.
-- pypi upload.
-- default location connection file

@@ -1,0 +1,13 @@
+connections:
+
+  - name: my-sqlite-database
+    driver: sqlite:///
+    connection: /tmp/database.db
+
+  - name: my-mysql-database
+    driver: mysql+pymysql://
+    connection: root@localhost/testdatabase
+
+  - name: my-postgresql-database
+    driver: postgresql+psycopg2://
+    connection: postgres@localhost/testdatabase
