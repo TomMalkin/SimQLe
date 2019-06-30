@@ -11,14 +11,19 @@ def sqlite_database(context):
 
 def sqlite_cleanup():
     # make sure the database file doesn't exist before running
-    try:
-        os.remove("/tmp/database.db")
-        os.remove("/tmp/production-database.db")
-        os.remove("/tmp/development-database.db")
-        os.remove("/tmp/default-database.db")
+    tmp_databases = [
+        "/tmp/database.db",
+        "/tmp/production-database.db",
+        "/tmp/development-database.db",
+        "/tmp/default-database.db",
+    ]
 
-    except OSError:
-        pass
+    for tmp_database in tmp_databases:
+        try:
+            os.remove(tmp_database)
+
+        except OSError:
+            pass
 
 
 @fixture

@@ -174,7 +174,7 @@ def load_internal_connections(context):
     load_connections()
 
 
-@when("we create an interal table on {con_type}")
+@when("we create an internal table on {con_type}")
 def create_an_internal_table(context, con_type):
     """Create a table on an internal connection."""
     create_table_sql = CREATE_TABLE_SYNTAX.get(con_type)
@@ -357,6 +357,8 @@ def entry_exists_in_default_table(context):
         ["id", "testfield"]
     )
 
+    print(rst)
+    print(correct_rst)
     assert rst == correct_rst
 
     # check with the known default connection
