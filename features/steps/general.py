@@ -155,7 +155,7 @@ def update_an_entry(context, con_type):
                                 params=params)
 
 
-@when("we insert an entry with {con_type}")
+@when("we insert an entry with no connection name")
 def update_an_entry_with_no_connection(context):
     """Update an entry with no connection type."""
     insert_record_sql = """

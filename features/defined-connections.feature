@@ -67,7 +67,7 @@ Feature: database connections
 	Scenario: No connection name loads a default connection
 		When we load the test connections file with a default connection
 		AND we create a table with no connection name
-		AND we create an entry with on no connection name
+		AND we insert an entry with no connection name
 		Then the entry exists in the default table
 
 	@fixture.sqlite
@@ -82,8 +82,6 @@ Feature: database connections
 		Then it throws a NoDefaultConnectionError with message "No Connection name was specified but no default connection exists."
 
 	@fixture.sqlite
-	Scenario: If the test default connection doesn't match the production default connection it throws and error
-	@fixture.sqlite
-	Scenario: Multiple default connections throws an error
+	Scenario: If the test default connection doesn't match the production default connection it throws an error
 		When we load the test connections file with wrong default connections
 		Then it throws a EnvironSyncError with message "The default connection in connections doesn't match the default connection in the test connections."
