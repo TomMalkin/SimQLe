@@ -15,6 +15,8 @@ def sqlite_cleanup():
         os.remove("/tmp/database.db")
         os.remove("/tmp/production-database.db")
         os.remove("/tmp/development-database.db")
+        os.remove("/tmp/default-database.db")
+
     except OSError:
         pass
 

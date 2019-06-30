@@ -7,7 +7,14 @@ from simqle import (
 )
 from simqle import internal
 from simqle.exceptions import *
-from constants import CONNECTIONS_FILE, CREATE_TABLE_SYNTAX, TEST_TABLE_NAME
+from constants import (
+    CONNECTIONS_FILE,
+    CREATE_TABLE_SYNTAX,
+    TEST_TABLE_NAME,
+    CONNECTIONS_FILE_WITH_DEFAULT,
+    CONNECTIONS_FILE_WITH_DEFAULTS,
+    CONNECTIONS_FILE_WITH_WRONG_DEFAULTS,
+)
 import os
 import yaml
 from sqlalchemy.engine import Engine
@@ -65,6 +72,17 @@ def load_test_connection_file(context):
         context.exc = e
 
 
+@when("we load the test connections file with a default connection")
+def load_test_connection_file_with_default(context):
+    """Set up the context manager for a given connection_type."""
+    try:
+        context.manager = ConnectionManager(
+            file_name=CONNECTIONS_FILE_WITH_DEFAULT)
+        context.exc = None
+    except Exception as e:
+        context.exc = e
+
+
 @when("we load a connection file from a default location")
 def load_default_connection_file(context):
     """Set up the context manager for a given connection_type."""
@@ -88,6 +106,17 @@ def create_a_table(context, con_type):
             con_name=con_name,
             sql=create_table_sql
         )
+        context.exc = None
+    except Exception as e:
+        context.exc = e
+
+
+@when("we create a table with no connection name")
+def create_a_table_with_no_connection(context):
+    """Create a table on no connections."""
+    create_table_sql = CREATE_TABLE_SYNTAX.get("sqlite")
+    try:  # using the connection manager without a default
+        context.manager.execute_sql(sql=create_table_sql)
         context.exc = None
     except Exception as e:
         context.exc = e
@@ -124,6 +153,19 @@ def update_an_entry(context, con_type):
     context.manager.execute_sql(con_name=con_name,
                                 sql=insert_record_sql,
                                 params=params)
+
+
+@when("we insert an entry with {con_type}")
+def update_an_entry_with_no_connection(context):
+    """Update an entry with no connection type."""
+    insert_record_sql = """
+        INSERT INTO {} (testfield)
+        VALUES (:str_value), (:int_value)
+        """.format(TEST_TABLE_NAME)
+
+    params = {"str_value": "foo", "int_value": 1}
+
+    context.manager.execute_sql(sql=insert_record_sql, params=params)
 
 
 @when("we internally load connections")
@@ -163,6 +205,28 @@ def update_an_internal_entry(context, con_type):
     execute_sql(con_name=con_name,
                 sql=insert_record_sql,
                 params=params)
+
+
+@when("we load the test connections file with a 2 default connections")
+def load_test_connection_file_with_2_defaults(context):
+    """Set up the context manager for a given connection_type."""
+    try:
+        context.manager = ConnectionManager(
+            file_name=CONNECTIONS_FILE_WITH_DEFAULTS)
+        context.exc = None
+    except Exception as e:
+        context.exc = e
+
+
+@when("we load the test connections file with wrong default connections")
+def load_test_connection_file_with_wrong_defaults(context):
+    """Set up the context manager for a given connection_type."""
+    try:
+        context.manager = ConnectionManager(
+            file_name=CONNECTIONS_FILE_WITH_WRONG_DEFAULTS)
+        context.exc = None
+    except Exception as e:
+        context.exc = e
 
 # --- When ---
 
@@ -275,5 +339,38 @@ def internal_connection_is_loaded(context):
 
     engine = get_connection("my-sqlite-database")
     assert isinstance(engine, Engine)
+
+
+@then("the entry exists in the default table")
+def entry_exists_in_default_table(context):
+    """Test if an entry exists and is correct."""
+    sql = "SELECT id, testfield FROM {}".format(TEST_TABLE_NAME)
+
+    # check with no con_name selected
+    rst = context.manager.recordset(sql=sql)
+
+    correct_rst = (
+        # data
+        [(1, "foo"), (2, "1")],
+
+        # headings
+        ["id", "testfield"]
+    )
+
+    assert rst == correct_rst
+
+    # check with the known default connection
+    rst = context.manager.recordset(con_name="my-default-sqlite-database",
+                                    sql=sql)
+
+    correct_rst = (
+        # data
+        [(1, "foo"), (2, "1")],
+
+        # headings
+        ["id", "testfield"]
+    )
+
+    assert rst == correct_rst
 
 # --- Then ---
