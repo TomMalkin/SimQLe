@@ -4,6 +4,8 @@ Feature: database connections
 	I want to be able to connect to various databases
 	So I can execute queries and return recordsets on it
 
+# --- A basic test of each of the supported databases ---
+
 	@fixture.sqlite
 	Scenario: sqlite test
 		When we load the test connections file
@@ -23,6 +25,9 @@ Feature: database connections
 		AND we insert an entry on postgresql
 		Then the entry exists in the table on postgresql
 
+
+# --- Testing other functionality ---
+
 	@fixture.sqlite
 	Scenario: get engine test
 		When we load the test connections file
@@ -33,12 +38,6 @@ Feature: database connections
 		When we load the test connections file
 		Then we can reset the connections
 
-	@fixture.sqlite
-	Scenario: An error occurs when an unknown connection name is given
-		When we load the test connections file
-		AND we create a table on wrongname
-		Then it throws a UnknownConnectionError with message "Unknown connection my-wrongname-database"
-
 	@fixture.connections.file
 	@fixture.sqlite
 	Scenario: A connection with url-escape is suitable
@@ -46,8 +45,43 @@ Feature: database connections
 		When we load a connection file from a default location
 		Then the connection has been properly escaped
 
+
+# --- Error handling ---
+
+	@fixture.sqlite
+	Scenario: An error occurs when an unknown connection name is given
+		When we load the test connections file
+		AND we create a table on wrongname
+		Then it throws a UnknownConnectionError with message "Unknown connection my-wrongname-database"
+
 	@fixture.sqlite
 	Scenario: A SQL error raises an exception
 		When we load the test connections file
 		AND we execute sql with an error on sqlite
 		Then it throws a Exception
+
+
+	# --- Testing default connection functionality ---
+
+	@fixture.sqlite
+	Scenario: No connection name loads a default connection
+		When we load the test connections file with a default connection
+		AND we create a table with no connection name
+		AND we insert an entry with no connection name
+		Then the entry exists in the default table
+
+	@fixture.sqlite
+	Scenario: Multiple default connections throws an error
+		When we load the test connections file with a 2 default connections
+		Then it throws a MultipleDefaultConnectionsError with message "More than 1 default connection was specified."
+
+	@fixture.sqlite
+	Scenario: No connection name given but no default connection throws an error
+		When we load the test connections file
+		AND we create a table with no connection name
+		Then it throws a NoDefaultConnectionError with message "No Connection name was specified but no default connection exists."
+
+	@fixture.sqlite
+	Scenario: If the test default connection doesn't match the production default connection it throws an error
+		When we load the test connections file with wrong default connections
+		Then it throws a EnvironSyncError with message "The default connection in connections doesn't match the default connection in the test connections."

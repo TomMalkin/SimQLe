@@ -1,0 +1,11 @@
+connections:
+
+  - name: my-default-sqlite-database
+    driver: sqlite:///
+    connection: /tmp/default-database.db
+    default: true
+
+  - name: my-non-default-sqlite-database
+    driver: sqlite:///
+    connection: /tmp/database.db
+    default: true
