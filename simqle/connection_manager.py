@@ -7,7 +7,10 @@ from sqlalchemy.sql import text, bindparam
 from sqlalchemy.types import VARCHAR
 from urllib.parse import quote_plus
 from simqle.constants import DEFAULT_FILE_LOCATIONS, DEV_MAP
-from simqle.exceptions import NoConnectionsFileError, UnknownConnectionError
+from simqle.exceptions import (
+    NoConnectionsFileError, UnknownConnectionError,
+    MultipleDefaultConnectionsError, EnvironSyncError, NoDefaultConnectionError
+)
 
 
 class ConnectionManager:
@@ -34,6 +37,8 @@ class ConnectionManager:
         self.test_mode = os.getenv("SIMQLE_TEST", False)
         self.dev_type = DEV_MAP[bool(self.test_mode)]
 
+        self._default_connection_name = None
+
         if not file_name:
             # file_name isn't given so we search through the possible default
             # file locations, which are in order of priority.
@@ -51,33 +56,40 @@ class ConnectionManager:
         else:
             self.config = self._load_yaml_file(file_name)
 
+        self._check_default_connections()
+
     # --- Public Methods: ---
 
-    def recordset(self, con_name, sql, params=None):
+    def recordset(self, sql, con_name=None, params=None):
         """Return recordset from connection."""
+        con_name = self._con_name(con_name)
         connection = self._get_connection(con_name)
         return connection.recordset(sql, params=params)
 
-    def execute_sql(self, con_name, sql, params=None):
+    def execute_sql(self, sql, con_name=None, params=None):
         """Execute SQL on a given connection."""
+        con_name = self._con_name(con_name)
         connection = self._get_connection(con_name)
         connection.execute_sql(sql, params=params)
 
-    def get_engine(self, con_name):
+    def get_engine(self, con_name=None):
         """Return the engine of a Connection by it's name."""
+        con_name = self._con_name(con_name)
         return self._get_connection(con_name).engine
 
-    def get_connection(self, con_name):
+    def get_connection(self, con_name=None):
         """
         Return the engine of a Connection by it's name.
 
         Deprecated, only exists for backwards compatibility.
         """
+        con_name = self._con_name(con_name)
         return self.get_engine(con_name)  # TODO: add warning
 
     def reset_connections(self):
         """Remove all current connection objects."""
         self.connections = {}
+        self._default_connection_name = None
 
     # --- Private Methods: ---
 
@@ -106,6 +118,45 @@ class ConnectionManager:
                 return self.connections[conn_name]
 
         raise UnknownConnectionError("Unknown connection {}".format(conn_name))
+
+    def _check_default_connections(self):
+        """Check that default settings are set correctly."""
+        # See if a default connection exists
+        number_of_defaults = 0
+        for connection in self.config["connections"]:
+            if connection.get("default"):
+                number_of_defaults += 1
+                self._default_connection_name = connection.get("name")
+
+        if not number_of_defaults:
+            return
+
+        if number_of_defaults > 1:
+            raise MultipleDefaultConnectionsError(
+                "More than 1 default connection was specified.")
+
+        if not self.config.get("test-connections"):
+            return
+
+        for connection in self.config["test-connections"]:
+            if connection.get("default"):
+                if connection.get("name") != self._default_connection_name:
+                    raise EnvironSyncError("The default connection in "
+                                           "connections doesn't match the "
+                                           "default connection in the test "
+                                           "connections.")
+
+    def _con_name(self, con_name=None):
+        if con_name:
+            return con_name
+
+        return self._get_default_connection()
+
+    def _get_default_connection(self):
+        if not self._default_connection_name:
+            raise NoDefaultConnectionError("No Connection name was specified "
+                                           "but no default connection exists.")
+        return self._default_connection_name
 
 
 class _Connection:

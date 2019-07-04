@@ -21,12 +21,13 @@ def load_connections(connections_file="./.connections.yaml"):
 
 def execute_sql(con_name, sql, params=None):
     """Execute sql on the Internal ConnectionManager."""
-    INTERNAL_CONNECTION_MANAGER.execute_sql(con_name, sql, params=params)
+    INTERNAL_CONNECTION_MANAGER.execute_sql(sql=sql, con_name=con_name,
+                                            params=params)
 
 
 def recordset(con_name, sql, params=None):
     """Return SQL results from the Internal ConnectionManager."""
-    return INTERNAL_CONNECTION_MANAGER.recordset(con_name, sql, params=params)
+    return INTERNAL_CONNECTION_MANAGER.recordset(sql, con_name, params=params)
 
 
 def get_connection(con_name):

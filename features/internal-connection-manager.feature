@@ -20,12 +20,11 @@ Feature: database connections
 		Then we can internally reset the connections
 
 
-
 	@fixture.connections.file
 	@fixture.sqlite
 	Scenario: Internal Manager test
 		Given we have a .connections.yaml file in root
 		When we internally load connections
-		AND we create an interal table on sqlite
+		AND we create an internal table on sqlite
 		AND we insert an internal entry on sqlite
 		THEN the entry exists in the internal table on sqlite
