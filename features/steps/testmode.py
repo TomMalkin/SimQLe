@@ -25,10 +25,16 @@ def add_testmode_connections_file_to_root(context):
                  "connection": "/tmp/production-database.db", },
                 ],
 
+        "dev-connections": [
+            {"name": "my-sqlite-database",
+             "driver": "sqlite:///",
+             "connection": "/tmp/development-database.db", }
+        ],
+
         "test-connections": [
                 {"name": "my-sqlite-database",
                  "driver": "sqlite:///",
-                 "connection": "/tmp/development-database.db", }
+                 "connection": "/tmp/test-database.db", }
                 ]
         }
 
@@ -46,11 +52,11 @@ def add_testmode_connections_file_to_root(context):
 
 # --- Then ---
 
-@then("test mode environment variable changes connection")
+@then("simqle mode environment variable changes connection type")
 def test_mode_environment_check(context):
-    """Test that the SIMQLE_TEST env variable switches the connections."""
-    # Make sure the project is in production mode
-    assert not os.getenv("SIMQLE_TEST", None)
+    """Test that the SIMQLE_MODE env variable switches the connections."""
+    # When there is no SIMQLE_MODE set, production mode is used by default
+    assert os.getenv("SIMQLE_MODE", None) is None
 
     production_manager = ConnectionManager()
     production_engine = production_manager.get_engine("my-sqlite-database")
@@ -58,15 +64,36 @@ def test_mode_environment_check(context):
 
     assert production_url == "sqlite:////tmp/production-database.db"
 
-    # Set the test switch to True
-    os.environ["SIMQLE_TEST"] = "True"
+
+    # when SIMQLE_MODE is "production", then production mode is active
+    os.environ["SIMQLE_MODE"] = "production"
+
+    production_manager = ConnectionManager()
+    production_engine = production_manager.get_engine("my-sqlite-database")
+    production_url = str(production_engine.url)
+
+    assert production_url == "sqlite:////tmp/production-database.db"
+
+
+    # when SIMQLE_MODE is "development", then development mode is active
+    os.environ["SIMQLE_MODE"] = "development"
     development_manager = ConnectionManager()
     development_engine = development_manager.get_engine("my-sqlite-database")
     development_url = str(development_engine.url)
 
     assert development_url == "sqlite:////tmp/development-database.db"
 
-    # del SIMQLE_TEST for the next test
-    del os.environ["SIMQLE_TEST"]
+
+    # when SIMQLE_MODE is "testing", then testing mode is active
+    os.environ["SIMQLE_MODE"] = "testing"
+    development_manager = ConnectionManager()
+    development_engine = development_manager.get_engine("my-sqlite-database")
+    development_url = str(development_engine.url)
+
+    assert development_url == "sqlite:////tmp/test-database.db"
+
+
+    # del SIMQLE_MODE for the next test
+    del os.environ["SIMQLE_MODE"]
 
 # --- Then ---
