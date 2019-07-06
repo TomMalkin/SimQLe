@@ -15,6 +15,7 @@ def sqlite_cleanup():
         "/tmp/database.db",
         "/tmp/production-database.db",
         "/tmp/development-database.db",
+        "/tmp/test-database.db",
         "/tmp/default-database.db",
     ]
 
