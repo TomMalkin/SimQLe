@@ -29,3 +29,9 @@ class MultipleDefaultConnectionsError(Exception):
     def __init__(self, msg):
         super().__init__(msg)
         self.message = msg
+
+
+class UnknownSimqleMode(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
+        self.message = msg

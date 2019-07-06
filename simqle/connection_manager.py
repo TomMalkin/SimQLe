@@ -9,7 +9,8 @@ from urllib.parse import quote_plus
 from simqle.constants import DEFAULT_FILE_LOCATIONS, DEV_MAP
 from simqle.exceptions import (
     NoConnectionsFileError, UnknownConnectionError,
-    MultipleDefaultConnectionsError, EnvironSyncError, NoDefaultConnectionError
+    MultipleDefaultConnectionsError, EnvironSyncError, UnknownSimqleMode,
+    NoDefaultConnectionError,
 )
 
 
@@ -34,8 +35,23 @@ class ConnectionManager:
         """
         self.connections = {}
 
-        self.test_mode = os.getenv("SIMQLE_TEST", False)
-        self.dev_type = DEV_MAP[bool(self.test_mode)]
+        # For backwards compatibility, test mode is given precedence
+        if isinstance(os.getenv("SIMQLE_TEST"), str) and os.getenv(
+                "SIMQLE_TEST").lower() == "true":
+            self.dev_mode = "testing"
+            self.dev_type = "test-connections"
+
+        else:
+            self.dev_mode = os.getenv("SIMQLE_MODE", "production")
+            self.dev_type = DEV_MAP.get(self.dev_mode)
+
+            if not self.dev_type:
+                error_msg = "{} is an unknown simqle mode".format(
+                    self.dev_mode)
+                raise UnknownSimqleMode(error_msg)
+
+        # self.test_mode = os.getenv("SIMQLE_TEST", False)
+        # self.dev_type = DEV_MAP[bool(self.test_mode)]
 
         self._default_connection_name = None
 

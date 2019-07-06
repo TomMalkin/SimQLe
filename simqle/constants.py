@@ -1,8 +1,8 @@
 """Load Constants."""
 DEV_MAP = {
-    # test mode: connection heading in yaml file
-    True: "test-connections",
-    False: "connections",
+    "production": "connections",
+    "development": "dev-connections",
+    "testing": "test-connections",
 }
 
 # TODO: add other default locations.

@@ -47,6 +47,15 @@ def add_testmode_connections_file_to_root(context):
 
 # --- When ---
 
+@when("we load an unknown connection mode")
+def test_mode_environment_check(context):
+    try:
+        os.environ["SIMQLE_MODE"] = "wrongmode"
+        _ = ConnectionManager()
+        context.exc = None
+    except Exception as e:
+        context.exc = e
+
 # --- When ---
 
 
@@ -83,7 +92,6 @@ def test_mode_environment_check(context):
 
     assert development_url == "sqlite:////tmp/development-database.db"
 
-
     # when SIMQLE_MODE is "testing", then testing mode is active
     os.environ["SIMQLE_MODE"] = "testing"
     development_manager = ConnectionManager()
@@ -112,21 +120,20 @@ def test_mode_environment_check(context):
 
     # when SIMQLE_TEST is "true", then test mode is active
     os.environ["SIMQLE_TEST"] = "true"
-    development_manager = ConnectionManager()
-    development_engine = development_manager.get_engine("my-sqlite-database")
-    development_url = str(development_engine.url)
+    test_manager = ConnectionManager()
+    test_engine = test_manager.get_engine("my-sqlite-database")
+    test_url = str(test_engine.url)
 
-    assert development_url == "sqlite:////tmp/test-database.db"
-
+    assert test_url == "sqlite:////tmp/test-database.db"
 
     # Same thing, despite SIMQLE_MODE
     os.environ["SIMQLE_TEST"] = "true"
     os.environ["SIMQLE_MODE"] = "development"
-    development_manager = ConnectionManager()
-    development_engine = development_manager.get_engine("my-sqlite-database")
-    development_url = str(development_engine.url)
+    test_manager = ConnectionManager()
+    test_engine = test_manager.get_engine("my-sqlite-database")
+    test_url = str(test_engine.url)
 
-    assert development_url == "sqlite:////tmp/test-database.db"
+    assert test_url == "sqlite:////tmp/test-database.db"
 
     del os.environ["SIMQLE_MODE"]
     del os.environ["SIMQLE_TEST"]
