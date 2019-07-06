@@ -96,4 +96,39 @@ def test_mode_environment_check(context):
     # del SIMQLE_MODE for the next test
     del os.environ["SIMQLE_MODE"]
 
+
+@then("simqle test environment variable changes connection type")
+def test_mode_environment_check(context):
+    """Test that the SIMQLE_TEST env variable switches the connections to test
+    mode, despite SIMQLE_MODE."""
+    # When there is no SIMQLE_MODE set, production mode is used by default
+    assert os.getenv("SIMQLE_TEST", None) is None
+
+    production_manager = ConnectionManager()
+    production_engine = production_manager.get_engine("my-sqlite-database")
+    production_url = str(production_engine.url)
+
+    assert production_url == "sqlite:////tmp/production-database.db"
+
+    # when SIMQLE_TEST is "true", then test mode is active
+    os.environ["SIMQLE_TEST"] = "true"
+    development_manager = ConnectionManager()
+    development_engine = development_manager.get_engine("my-sqlite-database")
+    development_url = str(development_engine.url)
+
+    assert development_url == "sqlite:////tmp/test-database.db"
+
+
+    # Same thing, despite SIMQLE_MODE
+    os.environ["SIMQLE_TEST"] = "true"
+    os.environ["SIMQLE_MODE"] = "development"
+    development_manager = ConnectionManager()
+    development_engine = development_manager.get_engine("my-sqlite-database")
+    development_url = str(development_engine.url)
+
+    assert development_url == "sqlite:////tmp/test-database.db"
+
+    del os.environ["SIMQLE_MODE"]
+    del os.environ["SIMQLE_TEST"]
+
 # --- Then ---
