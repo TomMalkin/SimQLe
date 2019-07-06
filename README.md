@@ -151,6 +151,6 @@ test-connections:
   - Integration tests added for mysql and postgresql
 - 0.3.0
   - Project refactored into classes
-  - default parameter added
+  - Default parameter added
 - 0.4.0
-  - development added as a connection mode
+  - Development added as a connection mode
