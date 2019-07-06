@@ -1,6 +1,6 @@
 """General BDD Steps."""
 
-from behave import given, then
+from behave import given, then, when
 from simqle import ConnectionManager
 import os
 import yaml
@@ -54,6 +54,7 @@ def test_mode_environment_check(context):
         _ = ConnectionManager()
         context.exc = None
     except Exception as e:
+        del os.environ["SIMQLE_MODE"]
         context.exc = e
 
 # --- When ---

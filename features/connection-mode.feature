@@ -14,14 +14,14 @@ Feature: connection mode changing
 	# for backwards compatibility, SIMQLE_TEST should autoamatically set SimQLe to test mode
 	@fixture.connections.file
 	@fixture.sqlite
-	Scenario: Test Mode
+	Scenario: Setting Test Mode
 		Given we have a testmode .connections.yaml file in root
 		Then simqle test environment variable changes connection type
 
 
-	# for backwards compatibility, SIMQLE_TEST should autoamatically set SimQLe to test mode
-	@fixture.connections.file
-	@fixture.sqlite
+#	# for backwards compatibility, SIMQLE_TEST should autoamatically set SimQLe to test mode
+#	@fixture.connections.file
+#	@fixture.sqlite
 	Scenario: Wrong Simqle Mode throws an exception
 		Given we have a testmode .connections.yaml file in root
 		When we load an unknown connection mode
