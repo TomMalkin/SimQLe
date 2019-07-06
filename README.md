@@ -9,9 +9,8 @@
 
 
 Perfect for no fuss SQL in your Python projects. Execute SQL and return simple
-Recordsets. Manage several connections, and be certain that your production
-databases aren't touched in your Integration Tests. Also, named parameters
-across the board.
+record sets with named parameters. Manage several connections, and switch 
+between production, development and testing modes.
 
 ## Installation
 
@@ -24,9 +23,8 @@ Or choose your poison:
 - `$ poetry add simqle`
 - `$ pipenv install simqle`
 
-Once installed, requires a .connections.yaml file in the root of the project
-that defines the connection strings the project should use. See the Connection
-String section for syntax.
+SimQLe reads from a connections file in yaml format. See the 
+`.connections.yaml` file section for more details.
 
 ## Usage
 
@@ -36,56 +34,60 @@ Get a result from the name of your connection, the SQL statement, and a dict
 of parameters:
 
 ```python
-from simqle import recordset, load_connections
+from simqle import ConnectionManager
 
-load_connections()
+# Intialise your connections
+cm = ConnectionManager(".connections.yaml")
+cm.load_connections()
 
+# Write some simple SQL
 sql = "SELECT name, age FROM people WHERE category = :category"
 params = {"category": 5}
-result = recordset(con_name="my-database", sql=sql, params=params)
+result = cm.recordset(con_name="my-database", sql=sql, params=params)
 ```
 
-recordset() returns a tuple of (Data, Headings). "Data" is a list of row tuples.
+The `recordset()` method returns a tuple of (Data, Headings). "Data" is a list of row tuples.
 Headings is a list of field names from the query.
+
+
+### In Development
+
+Set the SIMQLE_MODE environment variable to "development". This will use your
+development connections in place of the production ones, without changing
+your code.
 
 
 ### In Integration Tests
 
-Before running integration tests, set the `SIMQLE_TEST` environment variable
-to `True`. This will cause the `load_connections` function to load the
-`test-connections` (which should mirror the `connections` in terms of name and
-type of database), and will cause the code in your project to run exactly the
-same, but instead connect to your defined test connections instead.
+Set the SIMQLE_MODE environment variable to "testing".
 
-### Running the tests
+## Testing this package
 
-To run the tests, you will need to have the "behave" package installed (TODO : put this in the setup.py). For now, do this by running
+Tests require the behave package:
 
-    pip install behave
+`> pip install behave`
 
-Once installed, navigate to
+To run, simply:
 
-  tests/integration-tests/behave-tests
-
-Once there, run
-
-  PYTHONPATH=../../.. behave
-
-The python path will need to be set so that behave picks up the projects from the root directory. You can also install the project locally to avoid this.
+`> behave`
 
 
 ## The .connections.yaml File
-Define the connection strings for production and test servers. The names of the `test-connections` should mirror the `connections` names. The file `.connections.yaml` should be in the root of your project. Each connection will be referred to by its name.
+Define the connection strings for production, development and test servers. The
+names of the `test-connections` and `dev-connections` should mirror the 
+`connections` names. Each connection is be referred to by its name.
 
 Example file:
 
 ```yaml
 connections:
+ 
     # The name of the connection - this is what will be used in your project
     # to reference this connection.
   - name: my-sql-server-database
     driver: mssql+pyodbc:///?odbc_connect=
     connection: DRIVER={SQL Server};UID=<username>;PWD=<password>;SERVER=<my-server>
+ 
     # some odbc connections require urls to be escaped, this is managed by
     # setting url_escaped = true:
     url_escape: true
@@ -97,19 +99,35 @@ connections:
     # put a leading '/' before the connection for an absolute path, or omit
     # if it's relative to the project path
     connection: databases/my-database.db
+    #  This connection will be used if no name is given if the default 
+    # parameter is used:
+    default: true
 
 
-test-connections:
-    # the names of the test-connections should mirror the connections above.
+dev-connections:
+    # the names of the dev-connections should mirror the connections above.
   - name: my-sql-server-database
     driver: mssql+pyodbc:///?odbc_connect=
     # connecting to a different server here
+    connection: DRIVER={SQL Server};UID=<username>;PWD=<password>;SERVER=<my-dev-server>
+    url_escape: true    
+
+  - name: my-sqlite-database
+    driver: sqlite:///
+    connection: /tmp/my-dev-database.db
+    default: true
+
+
+test-connections:
+  - name: my-sql-server-database
+    driver: mssql+pyodbc:///?odbc_connect=
     connection: DRIVER={SQL Server};UID=<username>;PWD=<password>;SERVER=<my-test-server>
     url_escape: true    
 
   - name: my-sqlite-database
     driver: sqlite:///
-    connection: /tmp/my-test-database.db  # note the absolute path syntax
+    connection: /tmp/my-test-database.db
+    default: true
 ```
 
 ## Author
@@ -131,7 +149,8 @@ test-connections:
 - 0.2.0
   - Added url_escape option in connections.yaml file
   - Integration tests added for mysql and postgresql
-
-## Road Map
-- all available relational databases tested.
-- scripts for easy project setup.
+- 0.3.0
+  - Project refactored into classes
+  - Default parameter added
+- 0.4.0
+  - Development added as a connection mode
