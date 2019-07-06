@@ -43,7 +43,7 @@ setup(
     ],
 
     install_requires=REQUIRES,
-    tests_require=["codecov", "pytest", "coverage"],
+    tests_require=["codecov", "pytest", "coverage", "behave"],
 
     packages=find_packages(),
 )
