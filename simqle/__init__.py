@@ -1,6 +1,6 @@
 """Import commonly used functions."""
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 from simqle.internal import (
