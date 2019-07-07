@@ -38,7 +38,6 @@ from simqle import ConnectionManager
 
 # Intialise your connections
 cm = ConnectionManager(".connections.yaml")
-cm.load_connections()
 
 # Write some simple SQL
 sql = "SELECT name, age FROM people WHERE category = :category"
