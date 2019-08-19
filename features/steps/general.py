@@ -7,7 +7,7 @@ from simqle import (
 )
 from simqle import internal
 from simqle.exceptions import *
-from constants import (
+from .constants import (
     CONNECTIONS_FILE,
     CREATE_TABLE_SYNTAX,
     TEST_TABLE_NAME,

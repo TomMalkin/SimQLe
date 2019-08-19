@@ -9,8 +9,8 @@ Feature: Connecting to Default Files
 	Scenario: load a connections file from a default location
 		Given we have a .connections.yaml file in root
 		When we load a connection file from a default location
-		AND we create a table on sqlite
-		AND we insert an entry on sqlite
+		And we create a table on sqlite
+		And we insert an entry on sqlite
 		Then the entry exists in the table on sqlite
 
 	@fixture.sqlite

@@ -2,27 +2,27 @@ Feature: database connections
 
 	As a SimQLe user
 	I want to be able to connect to various databases
-	So I can execute queries and return recordsets on it
+	So I can execute queries And return recordsets on it
 
 # --- A basic test of each of the supported databases ---
 
 	@fixture.sqlite
 	Scenario: sqlite test
 		When we load the test connections file
-		AND we create a table on sqlite
-		AND we insert an entry on sqlite
+		And we create a table on sqlite
+		And we insert an entry on sqlite
 		Then the entry exists in the table on sqlite
 
 	Scenario: mysql test
 		When we load the test connections file
-		AND we create a table on mysql
-		AND we insert an entry on mysql
+		And we create a table on mysql
+		And we insert an entry on mysql
 		Then the entry exists in the table on mysql
 
 	Scenario: postgresql test
 		When we load the test connections file
-		AND we create a table on postgresql
-		AND we insert an entry on postgresql
+		And we create a table on postgresql
+		And we insert an entry on postgresql
 		Then the entry exists in the table on postgresql
 
 
@@ -46,18 +46,18 @@ Feature: database connections
 		Then the connection has been properly escaped
 
 
-# --- Error handling ---
+# --- Error hAndling ---
 
 	@fixture.sqlite
 	Scenario: An error occurs when an unknown connection name is given
 		When we load the test connections file
-		AND we create a table on wrongname
+		And we create a table on wrongname
 		Then it throws a UnknownConnectionError with message "Unknown connection my-wrongname-database"
 
 	@fixture.sqlite
 	Scenario: A SQL error raises an exception
 		When we load the test connections file
-		AND we execute sql with an error on sqlite
+		And we execute sql with an error on sqlite
 		Then it throws a Exception
 
 
@@ -66,8 +66,8 @@ Feature: database connections
 	@fixture.sqlite
 	Scenario: No connection name loads a default connection
 		When we load the test connections file with a default connection
-		AND we create a table with no connection name
-		AND we insert an entry with no connection name
+		And we create a table with no connection name
+		And we insert an entry with no connection name
 		Then the entry exists in the default table
 
 	@fixture.sqlite
@@ -78,7 +78,7 @@ Feature: database connections
 	@fixture.sqlite
 	Scenario: No connection name given but no default connection throws an error
 		When we load the test connections file
-		AND we create a table with no connection name
+		And we create a table with no connection name
 		Then it throws a NoDefaultConnectionError with message "No Connection name was specified but no default connection exists."
 
 	@fixture.sqlite

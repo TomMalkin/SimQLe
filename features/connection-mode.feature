@@ -19,7 +19,7 @@ Feature: connection mode changing
 		Then simqle test environment variable changes connection type
 
 
-#	# for backwards compatibility, SIMQLE_TEST should autoamatically set SimQLe to test mode
+#	# for backwards compatibility, SIMQLE_TEST should automatically set SimQLe to test mode
 #	@fixture.connections.file
 #	@fixture.sqlite
 	Scenario: Wrong Simqle Mode throws an exception
