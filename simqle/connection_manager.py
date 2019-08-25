@@ -12,6 +12,7 @@ from simqle.exceptions import (
     MultipleDefaultConnectionsError, EnvironSyncError, UnknownSimqleMode,
     NoDefaultConnectionError,
 )
+from simqle.recordset import RecordSet, RecordScalar, Record
 
 
 class ConnectionManager:
@@ -77,10 +78,16 @@ class ConnectionManager:
     # --- Public Methods: ---
 
     def recordset(self, sql, con_name=None, params=None):
-        """Return recordset from connection."""
-        con_name = self._con_name(con_name)
-        connection = self._get_connection(con_name)
-        return connection.recordset(sql, params=params)
+        headings, data = self._recordset(sql, con_name, params=params)
+        return RecordSet(headings=headings, data=data)
+
+    def record_scalar(self, sql, con_name=None, params=None):
+        headings, data = self._recordset(sql, con_name, params=params)
+        return RecordScalar(headings=headings, data=data)
+
+    def record(self, sql, con_name=None, params=None):
+        headings, data = self._recordset(sql, con_name, params=params)
+        return Record(headings=headings, data=data)
 
     def execute_sql(self, sql, con_name=None, params=None):
         """Execute SQL on a given connection."""
@@ -108,6 +115,12 @@ class ConnectionManager:
         self._default_connection_name = None
 
     # --- Private Methods: ---
+
+    def _recordset(self, sql, con_name=None, params=None):
+        """Return headings and data from a connection."""
+        con_name = self._con_name(con_name)
+        connection = self._get_connection(con_name)
+        return connection.recordset(sql, params=params)
 
     def _load_yaml_file(self, connections_file):
         """Load the configuration from the given file."""
@@ -261,7 +274,8 @@ class _Connection:
         transaction.commit()
         connection.close()
 
-        return data, headings
+        return headings, data
+        # return RecordSet(headings=headings, data=data)
 
     @staticmethod
     def _bind_sql(sql, params):
