@@ -43,11 +43,25 @@ cm = ConnectionManager(".connections.yaml")
 sql = "SELECT name, age FROM people WHERE category = :category"
 params = {"category": 5}
 result = cm.recordset(con_name="my-database", sql=sql, params=params)
+
+# result.headings == ["name", "age"]
+
+# result.data == [
+#    ("Jim", 30),
+#    ("Bones", 35)
+# ]
+
+# result.as_dict == [
+#    {"name": "Jim", "age": 30},
+#    {"name": "Bones", "age": 35}
+# ]
+
+# result.column["name"] == ["Jim", "Bones"]
 ```
 
-The `recordset()` method returns a tuple of (Data, Headings). "Data" is a list of row tuples.
-Headings is a list of field names from the query.
-
+The `recordset()` method returns a RecordSet object with a bunch of handy methods for getting at the data.
+There is also a `cm.record()` method for queries you know only return a single record, and
+a `cm.record_scalar()` method for queries where you're after a single datum. 
 
 ### In Development
 
@@ -129,6 +143,11 @@ test-connections:
     default: true
 ```
 
+## Chat
+
+Say hello in the Gary: https://gitter.im/SimQLe/community
+
+
 ## Author
 
 [Tom Malkin](https://github.com/Harlekuin)
@@ -153,3 +172,5 @@ test-connections:
   - Default parameter added
 - 0.4.0
   - Development added as a connection mode
+- 0.5.0
+  - RecordSet, Record and RecordScalar objects added
