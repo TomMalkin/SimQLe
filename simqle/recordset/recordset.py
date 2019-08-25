@@ -26,16 +26,19 @@ class RecordSet:
         self.headings = headings
 
     def __bool__(self):
-        return self.data is None
+        return self.data is not None
 
     def __iter__(self):
         if self:
             return iter(self.data)
+        return iter(())
 
     def dict_gen(self):
         """Iterate over records as dictionaries."""
-        for record in self.data:
-            yield {h: v for h, v in zip(self.headings, record)}
+        if self:
+            for record in self.data or []:
+                yield {h: v for h, v in zip(self.headings, record)}
+        return []
 
     def as_dict(self):
         """
@@ -44,8 +47,10 @@ class RecordSet:
         Creates a copy of the data, so isn't very efficient for larger
         data sets.
         """
-        return [{h: v for h, v in zip(self.headings, record)}
-                for record in self.data]
+        if self:
+            return [{h: v for h, v in zip(self.headings, record)}
+                    for record in self.data or []]
+        return []
 
     def column(self, heading):
         """Return a list of data for a particular heading."""
@@ -54,7 +59,7 @@ class RecordSet:
         except ValueError as e:
             raise UnknownHeadingError(heading) from e
 
-        return [record[heading_index] for record in self.data]
+        return [record[heading_index] for record in self.data or []]
 
 
 class RecordScalar:
@@ -100,11 +105,15 @@ class Record:
     """
 
     def __init__(self, headings, data):
-        self.data = data[0]
-        self.headings = headings
-        self._dict = {k: v for k, v in zip(headings, data)}
+        self.data = data[0] if data else None
 
-    def __getattr__(self, heading):
+        self.headings = headings
+        if self.data:
+            self._dict = {k: v for k, v in zip(self.headings, self.data)}
+        else:
+            self._dict = {}
+
+    def __getitem__(self, heading):
         try:
             return self._dict[heading]
         except KeyError as e:
@@ -113,3 +122,6 @@ class Record:
     @property
     def as_dict(self):
         return self._dict
+
+    def __bool__(self):
+        return self.data is not None

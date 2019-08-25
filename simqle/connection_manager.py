@@ -77,15 +77,15 @@ class ConnectionManager:
 
     # --- Public Methods: ---
 
-    def recordset(self, sql, con_name, params=None):
+    def recordset(self, sql, con_name=None, params=None):
         headings, data = self._recordset(sql, con_name, params=params)
         return RecordSet(headings=headings, data=data)
 
-    def record_scalar(self, sql, con_name, params=None):
+    def record_scalar(self, sql, con_name=None, params=None):
         headings, data = self._recordset(sql, con_name, params=params)
         return RecordScalar(headings=headings, data=data)
 
-    def record(self, sql, con_name, params=None):
+    def record(self, sql, con_name=None, params=None):
         headings, data = self._recordset(sql, con_name, params=params)
         return Record(headings=headings, data=data)
 
@@ -121,7 +121,6 @@ class ConnectionManager:
         con_name = self._con_name(con_name)
         connection = self._get_connection(con_name)
         return connection.recordset(sql, params=params)
-
 
     def _load_yaml_file(self, connections_file):
         """Load the configuration from the given file."""
@@ -275,7 +274,7 @@ class _Connection:
         transaction.commit()
         connection.close()
 
-        return data, headings
+        return headings, data
         # return RecordSet(headings=headings, data=data)
 
     @staticmethod
