@@ -8,20 +8,6 @@ class UnknownHeadingError(Exception):
         self.message = msg
 
 
-class InconsistentRecordSetError(Exception):
-    def __init__(self, msg):
-        msg = "RecordSet cannot be intialised: {}".format(msg)
-        super().__init__(msg)
-        self.message = msg
-
-
-class NotAScalarError(Exception):
-    def __init__(self, msg):
-        msg = "RecordSet cannot be intialised: {}".format(msg)
-        super().__init__(msg)
-        self.message = msg
-
-
 class NoScalarDataError(Exception):
     def __init__(self):
         msg = "No datum was returned"
