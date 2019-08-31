@@ -5,7 +5,7 @@ CONNECTIONS_FILE = CONN_DIR + ".connections.yaml"
 CONNECTIONS_FILE_WITH_DEFAULT = CONN_DIR + ".connections-with-default.yaml"
 CONNECTIONS_FILE_WITH_DEFAULTS = CONN_DIR + ".connections-with-2-defaults.yaml"
 CONNECTIONS_FILE_WITH_WRONG_DEFAULTS = CONN_DIR + \
-    ".connections-with-wrong-defaults.yaml"
+                                       ".connections-with-wrong-defaults.yaml"
 
 # Create table queries. Each database has it's own SQL syntax for
 # creating tables so these are used below.
@@ -38,4 +38,19 @@ CREATE_TABLE_SYNTAX = {
         )
         """.format(TEST_TABLE_NAME),
 
+    "sqlserver":
+        """
+        create table {} (
+            id int primary key identity(1, 1),
+            testfield nvarchar(100)
+        )
+        """.format(TEST_TABLE_NAME),
+
+    "mariadb":
+        """
+        create table {} (
+            id integer primary key auto_increment,
+            testfield text
+        )
+        """.format(TEST_TABLE_NAME),
 }

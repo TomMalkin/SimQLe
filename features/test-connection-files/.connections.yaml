@@ -6,8 +6,17 @@ connections:
 
   - name: my-mysql-database
     driver: mysql+pymysql://
-    connection: root@localhost/testdatabase
+    connection: user:password@mysql:3306/testdatabase
 
   - name: my-postgresql-database
     driver: postgresql+psycopg2://
-    connection: postgres@localhost/testdatabase
+    connection: user:password@postgres:5432/testdatabase
+
+  - name: my-sqlserver-database
+    driver: mssql+pyodbc://
+    connection: DRIVER={ODBC Driver 17 for SQL Server};SERVER=sqlserver:1433;database=master;User Id=sa;Password=yourStrong(!)Password2;
+    url_escape: true
+
+  - name: my-mariadb-database
+    driver: mysql+pymysql://
+    connection: user:password@mariadb:8080/testdatabase
