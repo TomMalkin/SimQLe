@@ -1,0 +1,6 @@
+behave
+pymysql
+psycopg2
+cryptography
+coverage
+codecov

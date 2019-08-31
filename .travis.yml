@@ -1,36 +1,22 @@
 # Disable sudo to speed up the build
-sudo: false
+sudo: true
 
-# Add database services
-services:
-  - mysql
-  - postgresql
+env:
+  - DOCKER_COMPOSE_VERSION=1.4.2
 
-before_script:
-  - mysql -e 'CREATE DATABASE testdatabase;'
-  - psql -c 'create database testdatabase;' -U postgres
-
-# Set the build language to Python
-language: python
-
-# Set the python version to 3.5 and 3.6
-python:
-  - 3.5
-  - 3.6
-
-# Install the codecov pip dependency
-install:
-  - pip install codecov pytest psycopg2
-  - pip install -r requirements.txt
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 # Run the unit test
 script:
-  - coverage run -m behave
-
+  - docker-compose up --abort-on-container-exit --exit-code-from tester --build
 
 # Push the results back to codecov
 after_success:
-  - codecov
+  - codecov -f ./.reports/.coverage
 
 deploy:
   provider: pypi

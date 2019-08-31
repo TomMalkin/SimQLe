@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+
+  tester:
+    build: .
+    depends_on:
+      - mysql
+      - postgres
+    links:
+      - 'mysql:mysql'
+#    command: coverage run behave ./features
+    command: bash -c "coverage run -m behave ./features && coverage report && mv .coverage /.reports/"
+    volumes:
+      - "./.reports:/.reports"
+
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_DATABASE=testdatabase
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: 'testdatabase'
+    ports:
+      - '5432:5432'
+    expose:
+      - '5432'
