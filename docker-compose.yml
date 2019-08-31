@@ -7,8 +7,6 @@ services:
     depends_on:
       - mysql
       - postgres
-    links:
-      - 'mysql:mysql'
     command: bash -c "coverage run -m behave ./features && coverage report && mv .coverage /.reports/"
     volumes:
       - "./.reports:/.reports"

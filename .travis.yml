@@ -8,6 +8,7 @@ services:
 
 # Run the unit test
 script:
+  - pip install codecov
   - docker-compose up --abort-on-container-exit --exit-code-from tester --build
 
 # Push the results back to codecov
