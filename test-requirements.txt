@@ -4,3 +4,4 @@ psycopg2
 cryptography
 coverage
 codecov
+pyodbc

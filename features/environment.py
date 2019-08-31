@@ -6,7 +6,7 @@ import time
 
 def before_all(context):
     print("Starting behave tests")
-    time.sleep(20)
+    time.sleep(30)
 
 
 def before_tag(context, tag):
