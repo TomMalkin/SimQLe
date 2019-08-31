@@ -1,6 +1,8 @@
 # Disable sudo to speed up the build
 sudo: true
 
+language: python
+
 services:
   - docker
 
