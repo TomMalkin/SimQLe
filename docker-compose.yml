@@ -1,0 +1,53 @@
+version: '3.3'
+
+services:
+
+  tester:
+    build: .
+    depends_on:
+      - mysql
+      - postgres
+      - sqlserver
+#      - mariadb
+    command: bash -c "coverage run -m behave ./features && coverage report && coverage xml && mv coverage.xml /.reports/"
+    volumes:
+      - "./.reports:/.reports"
+
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_DATABASE=testdatabase
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    expose:
+      - '3306'
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: 'testdatabase'
+    expose:
+      - '5432'
+
+  sqlserver:
+    image: microsoft/mssql-server-linux:2017-latest
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: 'yourStrongPassword2'
+    expose:
+     - '1433'
+#
+#  mariadb:
+#    image: mariadb
+#    environment:
+#      - MYSQL_DATABASE=testdatabase
+#      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+#      - MYSQL_USER=user
+#      - MYSQL_PASSWORD=password
+#    expose:
+#      - '8080'

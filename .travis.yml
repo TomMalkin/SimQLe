@@ -1,36 +1,19 @@
 # Disable sudo to speed up the build
-sudo: false
+sudo: true
 
-# Add database services
-services:
-  - mysql
-  - postgresql
-
-before_script:
-  - mysql -e 'CREATE DATABASE testdatabase;'
-  - psql -c 'create database testdatabase;' -U postgres
-
-# Set the build language to Python
 language: python
 
-# Set the python version to 3.5 and 3.6
-python:
-  - 3.5
-  - 3.6
-
-# Install the codecov pip dependency
-install:
-  - pip install codecov pytest
-  - pip install -r requirements.txt
+services:
+  - docker
 
 # Run the unit test
 script:
-  - coverage run -m behave
-
+  - pip install codecov
+  - docker-compose up --abort-on-container-exit --exit-code-from tester --build
 
 # Push the results back to codecov
 after_success:
-  - codecov
+  - codecov -f ./.reports/coverage.xml
 
 deploy:
   provider: pypi

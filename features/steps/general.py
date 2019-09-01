@@ -35,14 +35,14 @@ def add_connections_file_to_root(context):
     # define our test file
     connections_file = {
         "connections": [
-                {"name": "my-sqlite-database",
-                 "driver": "sqlite:///",
-                 "connection": "/tmp/database.db", },
-                {"name": "my-sqlite-database-escaped",
-                 "driver": "sqlite:///",
-                 "connection": "A connection with spaces",
-                 "url_escape": True, },
-                ]}
+            {"name": "my-sqlite-database",
+             "driver": "sqlite:///",
+             "connection": "/tmp/database.db", },
+            {"name": "my-sqlite-database-escaped",
+             "driver": "sqlite:///",
+             "connection": "A connection with spaces",
+             "url_escape": True, },
+        ]}
 
     # write to our test file in a default location
     with open("./.connections.yaml", "w") as outfile:
@@ -56,6 +56,7 @@ def remove_default_connections_files(context):
         os.remove("./.connections.yaml")
     except OSError:
         pass
+
 
 # --- Given ---
 
@@ -87,8 +88,6 @@ def load_test_connection_file_with_default(context):
 def load_default_connection_file(context):
     """Set up the context manager for a given connection_type."""
     try:
-        # context.connection_type = "sqlite"
-        # context.connection_name = "my-sqlite-database"
         context.manager = ConnectionManager()
         context.exc = None
     except Exception as e:
@@ -148,7 +147,7 @@ def update_an_entry(context, con_type):
         VALUES (:str_value), (:int_value)
         """.format(TEST_TABLE_NAME)
 
-    params = {"str_value": "foo", "int_value": 1}
+    params = {"str_value": "foo", "int_value": "1"}
 
     context.manager.execute_sql(con_name=con_name,
                                 sql=insert_record_sql,
@@ -228,6 +227,7 @@ def load_test_connection_file_with_wrong_defaults(context):
     except Exception as e:
         context.exc = e
 
+
 # --- When ---
 
 
@@ -244,15 +244,8 @@ def entry_exists(context, con_type):
         sql=sql
     )
 
-    correct_rst = (
-        # data
-        [(1, "foo"), (2, "1")],
-
-        # headings
-        ["id", "testfield"]
-    )
-
-    assert rst == correct_rst
+    assert rst.data == [(1, "foo"), (2, "1")]
+    assert rst.headings == ["id", "testfield"]
 
 
 @then("the entry exists in the internal table on {con_type}")
@@ -266,15 +259,8 @@ def internal_entry_exists(context, con_type):
         sql=sql
     )
 
-    correct_rst = (
-        # data
-        [(1, "foo"), (2, "1")],
-
-        # headings
-        ["id", "testfield"]
-    )
-
-    assert rst == correct_rst
+    assert rst.data == [(1, "foo"), (2, "1")]
+    assert rst.headings == ["id", "testfield"]
 
 
 @then('it throws a {type} with message "{msg}"')
@@ -357,22 +343,14 @@ def entry_exists_in_default_table(context):
         ["id", "testfield"]
     )
 
-    print(rst)
-    print(correct_rst)
-    assert rst == correct_rst
+    assert rst.data == [(1, "foo"), (2, "1")]
+    assert rst.headings == ["id", "testfield"]
 
     # check with the known default connection
     rst = context.manager.recordset(con_name="my-default-sqlite-database",
                                     sql=sql)
 
-    correct_rst = (
-        # data
-        [(1, "foo"), (2, "1")],
-
-        # headings
-        ["id", "testfield"]
-    )
-
-    assert rst == correct_rst
+    assert rst.data == [(1, "foo"), (2, "1")]
+    assert rst.headings == ["id", "testfield"]
 
 # --- Then ---
