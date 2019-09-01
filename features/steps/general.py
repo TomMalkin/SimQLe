@@ -147,7 +147,7 @@ def update_an_entry(context, con_type):
         VALUES (:str_value), (:int_value)
         """.format(TEST_TABLE_NAME)
 
-    params = {"str_value": "foo", "int_value": 1}
+    params = {"str_value": "foo", "int_value": "1"}
 
     context.manager.execute_sql(con_name=con_name,
                                 sql=insert_record_sql,

@@ -14,8 +14,7 @@ connections:
 
   - name: my-sqlserver-database
     driver: mssql+pyodbc://
-    connection: DRIVER={ODBC Driver 17 for SQL Server};SERVER=sqlserver:1433;database=master;User Id=sa;Password=yourStrong(!)Password2;
-    url_escape: true
+    connection: sa:yourStrongPassword2@sqlserver:1433/master?driver=ODBC+Driver+17+for+SQL+Server
 
   - name: my-mariadb-database
     driver: mysql+pymysql://

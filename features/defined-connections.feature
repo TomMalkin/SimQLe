@@ -25,11 +25,11 @@ Feature: database connections
     And we insert an entry on postgresql
     Then the entry exists in the table on postgresql
 
-#  Scenario: sqlserver test
-#    When we load the test connections file
-#    And we create a table on sqlserver
-#    And we insert an entry on sqlserver
-#    Then the entry exists in the table on sqlserver
+  Scenario: sqlserver test
+    When we load the test connections file
+    And we create a table on sqlserver
+    And we insert an entry on sqlserver
+    Then the entry exists in the table on sqlserver
 #
 #  Scenario: mariadb test
 #    When we load the test connections file
