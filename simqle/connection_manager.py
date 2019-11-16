@@ -55,6 +55,7 @@ class ConnectionManager:
         # self.dev_type = DEV_MAP[bool(self.test_mode)]
 
         self._default_connection_name = None
+        self.config = None
 
         if not file_name:
             # file_name isn't given so we search through the possible default
@@ -62,13 +63,14 @@ class ConnectionManager:
             for default_file_name in DEFAULT_FILE_LOCATIONS:
                 try:
                     self.config = self._load_yaml_file(default_file_name)
-                    return
+                    break
                 except:  # noqa TODO: add file not found specific exception.
                     continue
 
-            raise NoConnectionsFileError(
-                "No file_name is specified and no files in default "
-                "locations are found.")
+            if not self.config:
+                raise NoConnectionsFileError(
+                    "No file_name is specified and no files in default "
+                    "locations are found.")
 
         else:
             self.config = self._load_yaml_file(file_name)
