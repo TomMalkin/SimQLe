@@ -143,6 +143,10 @@ test-connections:
     default: true
 ```
 
+## Metrics
+
+Useful metrics like the execution time and actual SQL sent are logged to the logging namespace "simqle".
+
 ## Chat
 
 Say hello in the Gary: https://gitter.im/SimQLe/community
