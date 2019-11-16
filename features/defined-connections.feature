@@ -30,12 +30,6 @@ Feature: database connections
     And we create a table on sqlserver
     And we insert an entry on sqlserver
     Then the entry exists in the table on sqlserver
-#
-#  Scenario: mariadb test
-#    When we load the test connections file
-#    And we create a table on mariadb
-#    And we insert an entry on mariadb
-#    Then the entry exists in the table on mariadb
 
 
 # --- Test the other return types on sqlite
@@ -76,6 +70,12 @@ Feature: database connections
     When we load a connection file from a default location
     Then the connection has been properly escaped
 
+  @fixture.sqlite
+  Scenario: A ConnectionManager class is created with a dict input
+    When we load a connection manager with a test dict
+    And we create a table on sqlite
+    And we insert an entry on sqlite
+    Then we can return a Recordset
 
 # --- Error Handling ---
 

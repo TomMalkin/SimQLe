@@ -14,6 +14,11 @@ with open("README.md", "r", encoding="utf-8") as f:
     readme = f.read()
 
 REQUIRES = ["sqlalchemy", "pyyaml"]
+EXTRAS_REQUIRE = {
+    "mssqlserver": ["pyodbc"],
+    "postgresql": ["psycopg2"],
+    "mysql": ["pymysql"],
+}
 
 setup(
     name="simqle",
@@ -43,6 +48,7 @@ setup(
     ],
 
     install_requires=REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
     tests_require=["codecov", "pytest", "coverage", "behave"],
 
     packages=find_packages(),

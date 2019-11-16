@@ -54,3 +54,15 @@ CREATE_TABLE_SYNTAX = {
         )
         """.format(TEST_TABLE_NAME),
 }
+
+TEST_DICT = {
+    "connections": [
+        {"name": "my-sqlite-database",
+         "driver": "sqlite:///",
+         "connection": "/tmp/database.db"},
+
+        {"name": "my-sqlite-database2",
+         "driver": "sqlite:///",
+         "connection": "/tmp/database2.db"},
+    ]
+}
