@@ -14,6 +14,7 @@ from constants import (
     CONNECTIONS_FILE_WITH_DEFAULT,
     CONNECTIONS_FILE_WITH_DEFAULTS,
     CONNECTIONS_FILE_WITH_WRONG_DEFAULTS,
+    TEST_DICT
 )
 import os
 import yaml
@@ -89,6 +90,17 @@ def load_default_connection_file(context):
     """Set up the context manager for a given connection_type."""
     try:
         context.manager = ConnectionManager()
+        context.exc = None
+    except Exception as e:
+        context.exc = e
+
+
+@when("we load a connection manager with a test dict")
+def load_default_connection_file(context):
+    """Set up the context manager for a given connection_type."""
+
+    try:
+        context.manager = ConnectionManager(TEST_DICT)
         context.exc = None
     except Exception as e:
         context.exc = e

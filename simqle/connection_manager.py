@@ -86,10 +86,17 @@ class ConnectionManager:
                     "locations are found.")
 
         else:
-            self.config = self._load_yaml_file(file_name)
+            if isinstance(file_name, dict):
+                self.config = file_name
 
-            log.info(f"The connections file was loaded from "
-                     f"{file_name}")
+                log.info(f"The connections file was loaded from a dict:"
+                         f"{file_name}")
+            else:
+                self.config = self._load_yaml_file(file_name)
+
+                log.info(f"The connections file was loaded from "
+                         f"{file_name}")
+
 
         self._check_default_connections()
 
