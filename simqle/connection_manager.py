@@ -1,6 +1,9 @@
 """Defines the ConnectionManager and Connection Classes."""
 
 import os
+import time
+import uuid
+
 from yaml import safe_load
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text, bindparam
@@ -13,6 +16,7 @@ from simqle.exceptions import (
     NoDefaultConnectionError,
 )
 from simqle.recordset import RecordSet, RecordScalar, Record
+from simqle.logging import logger as log
 
 
 class ConnectionManager:
@@ -39,20 +43,25 @@ class ConnectionManager:
         # For backwards compatibility, test mode is given precedence
         if isinstance(os.getenv("SIMQLE_TEST"), str) and os.getenv(
                 "SIMQLE_TEST").lower() == "true":
+
+            log.warn("ConnectionManager set to dev mode because SIMQLE_TEST "
+                     "is set. SIMQLE_TEST is deprecated, please use "
+                     "SIMQLE_MODE instead.")
+
             self.dev_mode = "testing"
             self.dev_type = "test-connections"
 
         else:
             self.dev_mode = os.getenv("SIMQLE_MODE", "production")
+
+            log.info(f"ConnectionManager is set to {self.dev_mode} mode")
+
             self.dev_type = DEV_MAP.get(self.dev_mode)
 
             if not self.dev_type:
                 error_msg = "{} is an unknown simqle mode".format(
                     self.dev_mode)
                 raise UnknownSimqleMode(error_msg)
-
-        # self.test_mode = os.getenv("SIMQLE_TEST", False)
-        # self.dev_type = DEV_MAP[bool(self.test_mode)]
 
         self._default_connection_name = None
         self.config = None
@@ -63,8 +72,12 @@ class ConnectionManager:
             for default_file_name in DEFAULT_FILE_LOCATIONS:
                 try:
                     self.config = self._load_yaml_file(default_file_name)
+
+                    log.info(f"The connections file was loaded from "
+                             f"{default_file_name}")
                     break
-                except:  # noqa TODO: add file not found specific exception.
+
+                except FileNotFoundError:
                     continue
 
             if not self.config:
@@ -74,6 +87,9 @@ class ConnectionManager:
 
         else:
             self.config = self._load_yaml_file(file_name)
+
+            log.info(f"The connections file was loaded from "
+                     f"{file_name}")
 
         self._check_default_connections()
 
@@ -93,9 +109,19 @@ class ConnectionManager:
 
     def execute_sql(self, sql, con_name=None, params=None):
         """Execute SQL on a given connection."""
+        execute_id = uuid.uuid4()
+
+        log.info(f"Execution started on {con_name} with id={execute_id}, "
+                 f"params={params}, sql={sql}")
+
+        start_time = time.time()
         con_name = self._con_name(con_name)
         connection = self._get_connection(con_name)
         connection.execute_sql(sql, params=params)
+        elapsed_time = time.time() - start_time
+
+        log.info(f"Execution id {execute_id} took {elapsed_time:.4f} seconds "
+                 f"to complete")
 
     def get_engine(self, con_name=None):
         """Return the engine of a Connection by it's name."""
@@ -120,11 +146,24 @@ class ConnectionManager:
 
     def _recordset(self, sql, con_name=None, params=None):
         """Return headings and data from a connection."""
+        recordset_id = uuid.uuid4()
+
+        log.info(f"Query started on {con_name} with id={recordset_id}, "
+                 f"params={params}, sql={sql}")
+
+        start_time = time.time()
         con_name = self._con_name(con_name)
         connection = self._get_connection(con_name)
-        return connection.recordset(sql, params=params)
+        rst = connection.recordset(sql, params=params)
+        elapsed_time = time.time() - start_time
 
-    def _load_yaml_file(self, connections_file):
+        log.info(f"Query id {recordset_id} took {elapsed_time:.4f} seconds "
+                 f"to complete")
+
+        return rst
+
+    @staticmethod
+    def _load_yaml_file(connections_file):
         """Load the configuration from the given file."""
         with open(connections_file) as file:
             return safe_load(file.read())
@@ -158,6 +197,9 @@ class ConnectionManager:
             if connection.get("default"):
                 number_of_defaults += 1
                 self._default_connection_name = connection.get("name")
+
+                log.info(f"Setting the default connection to "
+                         f"{connection.get('name')}")
 
         if not number_of_defaults:
             return
@@ -208,6 +250,7 @@ class _Connection:
         """Create a new Connection from a config dict."""
         self.driver = conn_config['driver']
         self._engine = None
+        self.name = conn_config['name']
 
         # Edit the connection based on configuration options.
 
@@ -220,6 +263,10 @@ class _Connection:
             self.connection_string = quote_plus(conn_config['connection'])
         else:
             self.connection_string = conn_config['connection']
+
+        # self.id = uuid.uuid4
+        # log.info(f"Connection created for {conn_config['name']} with id "
+        #          f"{self.id}")
 
     def _connect(self):
         """Create an engine based on sqlalchemy's create_engine."""
@@ -235,6 +282,10 @@ class _Connection:
 
     def execute_sql(self, sql, params=None):
         """Execute :sql: on this connection with named :params:."""
+        # action_id = uuid.uuid4
+        #
+        # log.info("")
+
         bound_sql = _Connection._bind_sql(sql, params)
 
         # TODO: discuss whether a connection should be closed on each
@@ -258,7 +309,7 @@ class _Connection:
         """
         Execute <sql> on <con>, with named <params>.
 
-        Return (data, headings)
+        Return (headings, data)
         """
         # bind the named parameters.
         bound_sql = self._bind_sql(sql, params)
