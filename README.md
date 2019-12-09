@@ -143,6 +143,26 @@ test-connections:
     default: true
 ```
 
+## Convenience functions
+
+`bind_sql(sql, params)` can be used to bind named parameters (from a dictionary) to a SQL query, even if the library that executes
+the query doesn't support named parameters. For example:
+
+```python
+import pandas as pd
+from simqle import ConnectionManager, bind_sql
+
+cm = ConnectionManager()
+
+sql = "SELECT Age FROM Person WHERE Name = :name"
+params = {"name": "Hikaru Sulu"}
+
+bound_sql = bind_sql(sql, params)
+
+# Note we don't need to pass the params here, they have already been bound:
+df = pd.read_sql(con=cm.get_engine(), sql=bound_sql)
+```
+
 ## Metrics
 
 Useful metrics like the execution time and actual SQL sent are logged to the logging namespace "simqle".
@@ -178,3 +198,5 @@ Say hello in the Gary: https://gitter.im/SimQLe/community
   - Development added as a connection mode
 - 0.5.0
   - RecordSet, Record and RecordScalar objects added
+- 0.5.3
+  - bind_sql is exposed for convenience
