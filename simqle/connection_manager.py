@@ -6,8 +6,7 @@ import uuid
 
 from yaml import safe_load
 from sqlalchemy import create_engine
-from sqlalchemy.sql import text, bindparam
-from sqlalchemy.types import VARCHAR
+
 from urllib.parse import quote_plus
 from simqle.constants import DEFAULT_FILE_LOCATIONS, DEV_MAP
 from simqle.exceptions import (
@@ -15,6 +14,7 @@ from simqle.exceptions import (
     MultipleDefaultConnectionsError, EnvironSyncError, UnknownSimqleMode,
     NoDefaultConnectionError,
 )
+from simqle.helper import bind_sql
 from simqle.recordset import RecordSet, RecordScalar, Record
 from simqle.logging import logger as log
 
@@ -96,7 +96,6 @@ class ConnectionManager:
 
                 log.info(f"The connections file was loaded from "
                          f"{file_name}")
-
 
         self._check_default_connections()
 
@@ -293,7 +292,7 @@ class _Connection:
         #
         # log.info("")
 
-        bound_sql = _Connection._bind_sql(sql, params)
+        bound_sql = bind_sql(sql, params)
 
         # TODO: discuss whether a connection should be closed on each
         # transaction.
@@ -319,7 +318,7 @@ class _Connection:
         Return (headings, data)
         """
         # bind the named parameters.
-        bound_sql = self._bind_sql(sql, params)
+        bound_sql = bind_sql(sql, params)
 
         # start the connection.
         connection = self.engine.connect()
@@ -336,26 +335,3 @@ class _Connection:
 
         return headings, data
         # return RecordSet(headings=headings, data=data)
-
-    @staticmethod
-    def _bind_sql(sql, params):
-        bound_sql = text(sql)  # convert to the useful sqlalchemy text
-
-        if params:  # add the named parameters
-            bound_sql = _Connection._bind_params(bound_sql, params)
-
-        return bound_sql
-
-    @staticmethod
-    def _bind_params(bound_sql, params):
-        """Bind named parameters to the given sql."""
-        for key, value in params.items():
-            if isinstance(value, str):
-                bound_sql = bound_sql.bindparams(
-                    bindparam(key=key, value=value, type_=VARCHAR(None))
-                )
-            else:
-                bound_sql = bound_sql.bindparams(
-                    bindparam(key=key, value=value)
-                )
-        return bound_sql
