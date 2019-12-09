@@ -198,3 +198,5 @@ Say hello in the Gary: https://gitter.im/SimQLe/community
   - Development added as a connection mode
 - 0.5.0
   - RecordSet, Record and RecordScalar objects added
+- 0.5.3
+  - bind_sql is exposed for convenience
