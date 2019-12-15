@@ -12,6 +12,8 @@ Perfect for no fuss SQL in your Python projects. Execute SQL and return simple
 record sets with named parameters. Manage several connections, and switch 
 between production, development and testing modes.
 
+Documentation can be found [here](https://simqle.readthedocs.io/en/latest/)
+
 ## Installation
 
 ### Repository
