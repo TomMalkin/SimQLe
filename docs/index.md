@@ -1,6 +1,6 @@
 # SimQLe Documentation
 
-Version 0.5.3
+Version 0.5.5
 
 > Never test or develop on production databases
  
