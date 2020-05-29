@@ -92,6 +92,8 @@ def record_scalar_method(context):
 
     assert scalar.datum == "foo"
 
+    assert scalar.sdatum("bar") == "foo"
+
 
 @then("we can return an empty Recordset")
 def empty_recordset_method(context):
@@ -170,3 +172,7 @@ def empty_record_scalar_method(context):
         assert scalar.datum == "foo"
     except NoScalarDataError:
         pass
+
+    assert scalar.sdatum("bar") == "bar"
+    assert scalar.sdatum() is None
+

@@ -175,4 +175,6 @@ Extra rows and columns are discarded.
 
 >>> bool(result)  # the truthiness of the datapoint
 True
+
+>>> result.sdatum("bar")  # a safe datum that returns "bar" if the record doesn't exist
 ```

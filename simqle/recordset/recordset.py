@@ -48,8 +48,10 @@ class RecordSet:
         data sets.
         """
         if self:
-            return [{h: v for h, v in zip(self.headings, record)}
-                    for record in self.data or []]
+            return [
+                {h: v for h, v in zip(self.headings, record)}
+                for record in self.data or []
+            ]
         return []
 
     def column(self, heading):
@@ -94,6 +96,17 @@ class RecordScalar:
     def datum(self):
         if not self:
             raise NoScalarDataError()
+        return self._datum[0]
+
+    def sdatum(self, default=None):
+        """
+        Return the datum with a default value if the record doesn't exist.
+
+        sdatum stands for Safe Datum, providing a default value instead of 
+        raising an error if the record doesn't exist.
+        """
+        if not self:
+            return default
         return self._datum[0]
 
 
