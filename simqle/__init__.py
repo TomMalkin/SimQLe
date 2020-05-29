@@ -1,6 +1,6 @@
 """Import commonly used functions."""
 
-__version__ = '0.5.5'
+__version__ = '0.5.6'
 
 from simqle.internal import (
     recordset,
@@ -23,3 +23,4 @@ __all__ = [
     "get_engine",
     "bind_sql",
 ]
+
