@@ -174,26 +174,24 @@ class ConnectionManager:
         with open(connections_file) as file:
             return safe_load(file.read())
 
-    def _get_connection(self, conn_name):
+    def _get_connection(self, con_name):
         """
         Return a connection object from its name.
 
         Connection objects are created and saved the first time they are
         called.
         """
-        # TODO: make conn_name and con_name consistent across the project
-
         # Return already initialised connection if it exists.
-        if conn_name in self.connections:
-            return self.connections[conn_name]
+        if con_name in self.connections:
+            return self.connections[con_name]
 
         # A new Connection instance is required.
         for conn_config in self.config[self.dev_type]:
-            if conn_config["name"] == conn_name:
-                self.connections[conn_name] = _Connection(conn_config)
-                return self.connections[conn_name]
+            if conn_config["name"] == con_name:
+                self.connections[con_name] = _Connection(conn_config)
+                return self.connections[con_name]
 
-        raise UnknownConnectionError("Unknown connection {}".format(conn_name))
+        raise UnknownConnectionError("Unknown connection {}".format(con_name))
 
     def _check_default_connections(self):
         """Check that default settings are set correctly."""
@@ -327,7 +325,7 @@ class _Connection:
         # get the results from the query.
         result = connection.execute(bound_sql)
         data = result.fetchall()
-        headings = result.keys()
+        headings = list(result.keys())
 
         # commit and close the connection
         transaction.commit()
