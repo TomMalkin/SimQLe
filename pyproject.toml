@@ -10,12 +10,19 @@ sqlalchemy = "^1.3"
 pyyaml = "^5.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^3.0"
 coverage = "^4.5"
 behave = "^1.2"
 pylama = "^7.7"
 mkdocs = "^1.0"
+pyodbc = "^4.0.32"
+psycopg2 = "^2.9.1"
+PyMySQL = "^1.0.2"
+pytest = "^6.2.5"
+pytest-mock = "^3.6.1"
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.black]
+line-length = 100

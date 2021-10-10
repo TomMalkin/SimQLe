@@ -1,4 +1,9 @@
-"""Internal ConnectionManager."""
+"""
+Internal ConnectionManager.
+
+Deprecated, in favour of defining a connection manager in an importable .py
+files.
+"""
 
 from simqle.connection_manager import ConnectionManager
 
