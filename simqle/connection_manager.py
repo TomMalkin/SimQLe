@@ -37,91 +37,94 @@ class ConnectionManager:
         """
         Initialise a ConnectionManager.
 
-        Connections are loaded lazily as required, only the config is loaded
-        on initialisation.
+        Connections are loaded lazily as required, only the config is loaded on initialisation.
         """
         self.connections = {}
+        self._default_connection_name = None
+        self.config = None
 
         self.mode = self._get_mode()
         self.mode_name = self._get_mode_name(self.mode)
 
         log.info(f"ConnectionManager is set to [{self.mode}] mode")
 
-        self._default_connection_name = None
-        self.config = None
-
         self.config = self._load_config(file_name)
 
-        self._check_default_connections()
+        self._default_connection_name = self._load_default_connection()
 
     # --- Public Methods: ---
 
-    def recordset(self, sql, con_name=None, params=None):
-        headings, data = self._recordset(sql, con_name, params=params)
+    def recordset(self, sql, con_name=None, params=None, reference=None):
+        headings, data = self._recordset(sql, con_name, params=params, reference=reference)
         return RecordSet(headings=headings, data=data)
 
-    def record_scalar(self, sql, con_name=None, params=None):
-        headings, data = self._recordset(sql, con_name, params=params)
-        return RecordScalar(headings=headings, data=data)
-
-    def record(self, sql, con_name=None, params=None):
-        headings, data = self._recordset(sql, con_name, params=params)
+    def record(self, sql, con_name=None, params=None, reference=None):
+        headings, data = self._recordset(sql, con_name, params=params, reference=reference)
         return Record(headings=headings, data=data)
 
-    def execute_sql(self, sql, con_name=None, params=None):
-        """Execute SQL on a given connection."""
-        execute_id = uuid.uuid4()
+    def record_scalar(self, sql, con_name=None, params=None, reference=None):
+        headings, data = self._recordset(sql, con_name, params=params, reference=reference)
+        return RecordScalar(headings=headings, data=data)
 
-        log.info(
-            f"Execution started on {con_name} with id={execute_id}, " f"params={params}, sql={sql}"
+    def execute_sql(self, sql, con_name=None, params=None, reference=None):
+        """Execute SQL on a given connection."""
+        query_id = uuid.uuid4()
+        reference = self._get_reference(reference)
+
+        log.debug(
+            f"Execution query starting [{con_name=}, {query_id=}, {params=}, {reference=}, {sql=}]"
         )
 
         start_time = time.time()
+
         con_name = self._con_name(con_name)
         connection = self._get_connection(con_name)
         connection.execute_sql(sql, params=params)
+
         elapsed_time = time.time() - start_time
 
-        log.info(f"Execution id {execute_id} took {elapsed_time:.4f} seconds " f"to complete")
+        log.info(
+            f"Execution query completed [Query Id={query_id}, Reference={reference}, Connection Name={con_name}, "
+            f"Params={params}, Execution Time={elapsed_time:.4f} seconds]"
+        )
 
     def get_engine(self, con_name=None):
         """Return the engine of a Connection by it's name."""
         con_name = self._con_name(con_name)
         return self._get_connection(con_name).engine
 
-    def get_connection(self, con_name=None):
-        """
-        Return the engine of a Connection by it's name.
-
-        Deprecated, only exists for backwards compatibility.
-        """
-        con_name = self._con_name(con_name)
-        return self.get_engine(con_name)  # TODO: add warning
-
-    def reset_connections(self):
-        """Remove all current connection objects."""
-        self.connections = {}
-        self._default_connection_name = None
-
     # --- Private Methods: ---
 
-    def _recordset(self, sql, con_name=None, params=None):
+    def _recordset(self, sql, con_name=None, params=None, reference=None):
         """Return headings and data from a connection."""
-        recordset_id = uuid.uuid4()
+        query_id = uuid.uuid4()
+        reference = self._get_reference(reference)
 
-        log.info(
-            f"Query started on {con_name} with id={recordset_id}, " f"params={params}, sql={sql}"
+        log.debug(
+            f"Recordset query starting [{con_name=}, {query_id=}, {params=}, {reference=}, {sql=}]"
         )
 
         start_time = time.time()
         con_name = self._con_name(con_name)
         connection = self._get_connection(con_name)
-        rst = connection.recordset(sql, params=params)
+        rst = connection.recordset(sql, params=params, reference=None)
         elapsed_time = time.time() - start_time
 
-        log.info(f"Query id {recordset_id} took {elapsed_time:.4f} seconds " f"to complete")
+        log.info(
+            f"Recordset query completed [Query Id={query_id}, Reference={reference}, Connection Name={con_name}, "
+            f"Params={params}, Execution Time={elapsed_time:.4f} seconds]"
+        )
 
         return rst
+
+    @staticmethod
+    def _get_reference(reference, sql):
+        """
+        Return the reference of a query for logging.
+
+        This is the user given reference or the first 20 characters of the query.
+        """
+        reference = reference or " ".join(sql.splitlines())[:20]
 
     @staticmethod
     def _load_yaml_file(connections_file):
@@ -148,14 +151,14 @@ class ConnectionManager:
 
         raise UnknownConnectionError("Unknown connection {}".format(con_name))
 
-    def _check_default_connections(self):
+    def _load_default_connection(self):
         """Check that default settings are set correctly."""
         # See if a default connection exists
         number_of_defaults = 0
         for connection in self.config["connections"]:
             if connection.get("default"):
                 number_of_defaults += 1
-                self._default_connection_name = connection.get("name")
+                _default_connection_name = connection.get("name")
 
                 log.info(f"Setting the default connection to " f"{connection.get('name')}")
 
@@ -165,18 +168,49 @@ class ConnectionManager:
         if number_of_defaults > 1:
             raise MultipleDefaultConnectionsError("More than 1 default connection was specified.")
 
-        if not self.config.get("test-connections"):
-            return
+        if "dev-connections" in self.config:
+            _default_connection_name_dev = ""
+            number_of_defaults_dev = 0
 
-        for connection in self.config["test-connections"]:
-            if connection.get("default"):
-                if connection.get("name") != self._default_connection_name:
-                    raise EnvironSyncError(
-                        "The default connection in "
-                        "connections doesn't match the "
-                        "default connection in the test "
-                        "connections."
-                    )
+            for connection in self.config["dev-connections"]:
+                if connection.get("default"):
+                    number_of_defaults_dev += 1
+                    _default_connection_name_dev = connection.get("name")
+
+            if number_of_defaults > 1:
+                raise MultipleDefaultConnectionsError(
+                    "More than 1 default connection was specified in the dev-connections."
+                )
+
+            if _default_connection_name != _default_connection_name_dev:
+                raise EnvironSyncError(
+                    "The default connections in production and development do not match, "
+                    f"the production default is [{_default_connection_name}] and the dev default "
+                    f"is [{_default_connection_name_dev}]"
+                )
+
+        if "test-connections" in self.config:
+            _default_connection_name_test = ""
+            number_of_defaults_test = 0
+
+            for connection in self.config["test-connections"]:
+                if connection.get("default"):
+                    number_of_defaults_test += 1
+                    _default_connection_name_test = connection.get("name")
+
+            if number_of_defaults > 1:
+                raise MultipleDefaultConnectionsError(
+                    "More than 1 default connection was specified in the test-connections."
+                )
+
+            if _default_connection_name != _default_connection_name_test:
+                raise EnvironSyncError(
+                    "The default connections in production and testing do not match, "
+                    f"the production default is [{_default_connection_name}] and the test default "
+                    f"is [{_default_connection_name_test}]"
+                )
+
+        return _default_connection_name
 
     def _con_name(self, con_name=None):
         if con_name:
@@ -321,14 +355,8 @@ class _Connection:
 
     def execute_sql(self, sql, params=None):
         """Execute :sql: on this connection with named :params:."""
-        # action_id = uuid.uuid4
-        #
-        # log.info("")
-
         bound_sql = bind_sql(sql, params)
 
-        # TODO: discuss whether a connection should be closed on each
-        # transaction.
         connection = self.engine.connect()
         transaction = connection.begin()
 
@@ -353,18 +381,20 @@ class _Connection:
         # bind the named parameters.
         bound_sql = bind_sql(sql, params)
 
-        # start the connection.
         connection = self.engine.connect()
         transaction = connection.begin()
 
-        # get the results from the query.
-        result = connection.execute(bound_sql)
-        data = result.fetchall()
-        headings = list(result.keys())
+        try:
+            result = connection.execute(bound_sql)
+            data = result.fetchall()
+            headings = list(result.keys())
+            transaction.commit()
 
-        # commit and close the connection
-        transaction.commit()
-        connection.close()
+        except Exception as exception:
+            transaction.rollback()
+            raise exception
+
+        finally:
+            connection.close()
 
         return headings, data
-        # return RecordSet(headings=headings, data=data)

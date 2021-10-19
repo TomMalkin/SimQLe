@@ -1,6 +1,7 @@
 """Define the RecordSet Class."""
 from .exceptions import UnknownHeadingError, NoScalarDataError
 
+from simqle.logging import logger as log
 
 class RecordSet:
     """
@@ -22,6 +23,7 @@ class RecordSet:
         <data> can be None, representing no rows of data for the given
         headings.
         """
+        print("WTF")
         self.data = data or None
         self.headings = headings
 
@@ -118,6 +120,10 @@ class Record:
     """
 
     def __init__(self, headings, data):
+
+        if len(data) > 1:
+            log.warning("Record object initialised with a query that returned more than 1 row.")
+
         self.data = data[0] if data else None
 
         self.headings = headings

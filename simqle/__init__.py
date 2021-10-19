@@ -3,7 +3,7 @@
 __version__ = '0.5.8'
 
 from simqle.internal import (
-    recordset,
+    # recordset,
     execute_sql,
     load_connections,
     get_connection,
@@ -14,7 +14,7 @@ from simqle.helper import bind_sql
 from simqle.connection_manager import ConnectionManager
 
 __all__ = [
-    "recordset",
+    # "recordset",
     "get_connection",
     "execute_sql",
     "load_connections",
