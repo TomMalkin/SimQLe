@@ -3,7 +3,11 @@ SimQLe uses a ConnectionManager class instance to store all the config used
 in the project.
 """
 from simqle import ConnectionManager
+from simqle.connection_manager import _Connection
 import simqle
+
+import uuid
+from uuid import UUID
 
 
 def test_connection_manager_init(mocker, get_connection_manager_mock, test_config):
@@ -93,12 +97,35 @@ def test_record_scalar_method(mocker, get_connection_manager_mock):
     patched_record_scalar.assert_called_once_with(headings=test_headings, data=test_data)
 
 
-def test_execute_sql_method(mocker):
+def test_execute_sql_method(mocker, get_connection_manager_mock, get_connection_mock):
     """
     execute_sql() is used to execute on the database, without expecting a
     return value.
     """
-    pass
+    cm = get_connection_manager_mock()
+
+    mocker.patch("uuid.uuid4", new=lambda: UUID("e87f2fd8-4dd3-4921-89ad-401b1ccb18d3"))
+    mocker.patch.object(
+        ConnectionManager,
+        "_get_reference",
+        new=lambda self, reference: "test reference",
+    )
+    mocker.patch.object(
+        ConnectionManager,
+        "_con_name",
+        new=lambda self, con_name: "test con_name",
+    )
+    mocker.patch.object(
+        ConnectionManager,
+        "_get_connection",
+        new=lambda self, con_name: get_connection_mock(),  # shouldn't be a string
+    )
+    mocker.patch("time.time", new=lambda: 1635058080.7687786)
+    mocker.patch.object(_Connection, "execute_sql", auto_spec=True)
+
+    cm.execute_sql(sql="test")
+
+    _Connection.execute_sql.assert_called_once()
 
 
 def test_get_engine_method(mocker):
@@ -174,4 +201,3 @@ def test_load_config_private(mocker):
     The _load_config() method is used to
     """
     pass
-

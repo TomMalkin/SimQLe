@@ -1,5 +1,6 @@
 from simqle import ConnectionManager
 from simqle.recordset import RecordSet, Record, RecordScalar
+from simqle.connection_manager import _Connection
 import pytest
 
 
@@ -35,6 +36,19 @@ def get_connection_manager_mock(mocker, test_config):
     # cm = ConnectionManager()
 
     yield ConnectionManager
+
+@pytest.fixture()
+def get_connection_mock(mocker):
+    """Yield an initialised _Connection object with basic settings."""
+    class _TestConnection(_Connection):
+        def __init__(self):
+            self.driver = "test driver"
+            self._engine = None
+            self.name = "test name"
+            self.connection_string = "test connection string"
+
+    yield _TestConnection
+
 
 
 @pytest.fixture()
