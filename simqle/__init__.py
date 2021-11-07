@@ -1,12 +1,13 @@
 """Expose the classes and functions of the public API."""
 
-__version__ = '0.5.8'
+__version__ = "0.5.8"
 
-from simqle.utility import bind_sql
-from simqle.connection_manager import ConnectionManager
+from .simqle import Simqle
+from .utility import bind_sql
+from .logging import RECOMMENDED_LOG_FORMAT
 
 __all__ = [
-    "ConnectionManager",
+    "Simqle",
     "bind_sql",
+    "RECOMMENDED_LOG_FORMAT",
 ]
-

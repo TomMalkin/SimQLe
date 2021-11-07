@@ -8,6 +8,7 @@ authors = ["Tom Malkin <tommalkin28@gmail.com>"]
 python = "^3.6"
 sqlalchemy = "^1.3"
 pyyaml = "^5.1"
+loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
 coverage = "^4.5"
@@ -19,6 +20,7 @@ psycopg2 = "^2.9.1"
 PyMySQL = "^1.0.2"
 pytest = "^6.2.5"
 pytest-mock = "^3.6.1"
+pylint = "^2.11.1"
 
 [build-system]
 requires = ["poetry>=0.12"]

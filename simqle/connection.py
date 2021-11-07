@@ -1,3 +1,10 @@
+"""Define a Connection class which represents a connection to a named database."""
+
+from urllib.parse import quote_plus
+
+from sqlalchemy import create_engine
+
+
 class Connection:
     """
     The _Connection class.
@@ -11,11 +18,11 @@ class Connection:
     only.
     """
 
-    def __init__(self, conn_config):
+    def __init__(self, con_config):
         """Create a new Connection from a config dict."""
-        self.driver = conn_config["driver"]
-        self._engine = None
-        self.name = conn_config["name"]
+        self.driver = con_config["driver"]
+        self.engine = None
+        self.name = con_config["name"]
 
         # Edit the connection based on configuration options.
 
@@ -24,69 +31,19 @@ class Connection:
         # option is True. See here for example and more info:
         # https://docs.sqlalchemy.org/en/13/dialects/mssql.html
         #   #pass-through-exact-pyodbc-string
-        if "url_escape" in conn_config:
-            self.connection_string = quote_plus(conn_config["connection"])
+        if "url_escape" in con_config:
+            self.connection_string = quote_plus(con_config["connection"])
         else:
-            self.connection_string = conn_config["connection"]
+            self.connection_string = con_config["connection"]
 
-        # self.id = uuid.uuid4
-        # log.info(f"Connection created for {conn_config['name']} with id "
-        #          f"{self.id}")
-
-    def _connect(self):
+    def connect(self):
         """Create an engine based on sqlalchemy's create_engine."""
-        self._engine = create_engine(self.driver + self.connection_string)
+        self.engine = create_engine(self.driver + self.connection_string)
 
     @property
     def engine(self):
         """Load the engine if it hasn't been loaded before."""
-        if not self._engine:
-            self._connect()
+        if not self.engine:
+            self.connect()
 
-        return self._engine
-
-    def execute_sql(self, sql, params=None):
-        """Execute :sql: on this connection with named :params:."""
-        bound_sql = bind_sql(sql, params)
-
-        connection = self.engine.connect()
-        transaction = connection.begin()
-
-        # execute the query, and rollback on error
-        try:
-            connection.execute(bound_sql)
-            transaction.commit()
-
-        except Exception as exception:
-            transaction.rollback()
-            raise exception
-
-        finally:
-            connection.close()
-
-    def recordset(self, sql, params=None):
-        """
-        Execute <sql> on <con>, with named <params>.
-
-        Return (headings, data)
-        """
-        # bind the named parameters.
-        bound_sql = bind_sql(sql, params)
-
-        connection = self.engine.connect()
-        transaction = connection.begin()
-
-        try:
-            result = connection.execute(bound_sql)
-            data = result.fetchall()
-            headings = list(result.keys())
-            transaction.commit()
-
-        except Exception as exception:
-            transaction.rollback()
-            raise exception
-
-        finally:
-            connection.close()
-
-        return headings, data
+        return self.engine

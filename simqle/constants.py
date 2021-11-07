@@ -1,7 +1,7 @@
 """Load Constants."""
 from os.path import expanduser, join
 
-DEV_MAP = {
+MODE_MAP = {
     "production": "connections",
     "development": "dev-connections",
     "testing": "test-connections",

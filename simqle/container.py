@@ -14,27 +14,6 @@ from .exceptions import UnknownHeadingError, NoScalarDataError
 from .logging import logger
 
 
-# class DataContainer:
-
-    # def __init__(self, headings, data):
-        # """
-        # Initialise a data container with the headings and data from the database.
-
-        # headings: a list of field names of the data
-           # ("Id", "Name", "Age")
-
-        # data: a list of tuples that match the headings
-            # [
-                # (1, "Bob", 31).
-                # (2, "Alice", 40).
-            # ]
-
-            # if data is an empty list, then it is replaced with None
-        # """
-        # self.headings = headings
-        # self.data = data or None
-
-
 class RecordSet:
     """Represents a data container with 1+ fields and 1+ rows."""
 
@@ -43,9 +22,11 @@ class RecordSet:
         self.data = data or None
 
     def __bool__(self):
+        """Return if this recordset has data."""
         return self.data is not None
 
     def __iter__(self):
+        """Iterate through the data records."""
         if self:
             return iter(self.data)
         return iter(())
@@ -54,7 +35,7 @@ class RecordSet:
         """Iterate over records as dictionaries."""
         if self:
             for record in self.data:
-                yield {h: v for h, v in zip(self.headings, record)}
+                yield dict(zip(self.headings, record))
 
     def as_dict(self):
         """
@@ -64,18 +45,15 @@ class RecordSet:
         data sets.
         """
         if self:
-            return [
-                {h: v for h, v in zip(self.headings, record)}
-                for record in self.data or []
-            ]
+            return [dict(zip(self.headings, self.data)) for record in self.data or []]
         return []
 
     def column(self, heading):
         """Return a list of data for a particular heading."""
         try:
             heading_index = self.headings.index(heading)
-        except ValueError as e:
-            raise UnknownHeadingError(heading) from e
+        except ValueError as exception:
+            raise UnknownHeadingError(heading) from exception
 
         return [record[heading_index] for record in self.data or []]
 
@@ -93,22 +71,27 @@ class Record:
 
         self.headings = headings
         self.data = data[0] if data else None
-
-        if self.data:
-            self._dict = {k: v for k, v in zip(self.headings, self.data)}
-        else:
-            self._dict = {}
+        self._dict = None
 
     def __getitem__(self, heading):
+        """Return a value based on a heading."""
         try:
             return self._dict[heading]
-        except KeyError as e:
-            raise UnknownHeadingError(heading) from e
+        except KeyError as exception:
+            raise UnknownHeadingError(heading) from exception
 
     def as_dict(self):
+        """Return this record as a dict, lazily."""
+        if self._dict is not None:
+            if self.data:
+                self._dict = dict(zip(self.headings, self.data))
+            else:
+                self._dict = {}
+
         return self._dict
 
     def __bool__(self):
+        """Return if this record has data."""
         return self.data is not None
 
 
@@ -147,6 +130,7 @@ class RecordScalar:
 
     @property
     def datum(self):
+        """Return a naive scalar value that assumes it's own existance."""
         if not self:
             raise NoScalarDataError()
         return self._datum[0]
@@ -161,5 +145,3 @@ class RecordScalar:
         if not self:
             return default
         return self._datum[0]
-
-

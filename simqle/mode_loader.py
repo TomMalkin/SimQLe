@@ -12,11 +12,9 @@ Loading the connections from the config based on the above mode:
  - testing: test-connections
 """
 
-
 import os
 
-class ModeLoader:
 
-    def __init__(self, override=None):
-        self.mode = override or os.getenv("SIMQLE_MODE", "production")
-
+def mode_loader(override=None):
+    """Return the simqle mode from the SIMQLE_MODE env var and an optional override."""
+    return override or os.getenv("SIMQLE_MODE", "production")
