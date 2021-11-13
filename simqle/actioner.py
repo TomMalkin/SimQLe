@@ -5,6 +5,7 @@ from .utility import bind_sql
 from .connection import Connection
 from .container import RecordSet, Record, RecordScalar
 from .logging import logger
+from .timer import Timer
 
 
 class DatabaseActioner:
@@ -19,18 +20,18 @@ class DatabaseActioner:
 
         bound_sql = bind_sql(sql, params) if params else sql
 
-        engine_connection = connection.engine.connect()
-        transaction = engine_connection.begin()
+        engine = connection.connect()
+        transaction = engine.begin()
 
         logger.info(
             f"Execution query called [connection='{connection.name}', "
             f"reference='{reference}', params={params}]"
         )
 
-        start_time = time.time()
+        timer = Timer()
 
         try:
-            engine_connection.execute(bound_sql)
+            engine.execute(bound_sql)
             transaction.commit()
 
         except Exception as exception:
@@ -38,9 +39,9 @@ class DatabaseActioner:
             raise exception
 
         finally:
-            engine_connection.close()
+            engine.close()
 
-        elapsed_time = time.time() - start_time
+        elapsed_time = timer.get_elapsed_time()
 
         logger.info(
             f"Execution query complete [connection='{connection.name}', "
@@ -53,18 +54,18 @@ class DatabaseActioner:
 
         bound_sql = bind_sql(sql, params) if params else sql
 
-        engine_connection = connection.engine.connect()
-        transaction = engine_connection.begin()
+        engine = connection.connect()
+        transaction = engine.begin()
 
         logger.info(
             f"Query called [connection='{connection.name}', "
             f"reference='{reference}', params={params}]"
         )
 
-        start_time = time.time()
+        timer = Timer()
 
         try:
-            result = engine_connection.execute(bound_sql)
+            result = engine.execute(bound_sql)
             data = result.fetchall()
             headings = list(result.keys())
             transaction.commit()
@@ -74,9 +75,9 @@ class DatabaseActioner:
             raise exception
 
         finally:
-            engine_connection.close()
+            engine.close()
 
-        elapsed_time = time.time() - start_time
+        elapsed_time = timer.get_elapsed_time()
 
         logger.info(
             f"Query complete [connection='{connection.name}', "
@@ -113,4 +114,4 @@ class DatabaseActioner:
 
         This is the user given reference or the first 20 characters of the query.
         """
-        return reference or " ".join(sql.splitlines())[:20]
+        return reference or " ".join([l.strip() for l in sql.splitlines()]).strip()[:20]

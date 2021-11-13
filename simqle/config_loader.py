@@ -47,9 +47,7 @@ class ConfigLoader:
 
         elif isinstance(self.filename, dict):
             base_config = self.filename
-            logger.info(
-                "Configuration loaded from a given dict parameter, rather than a filename."
-            )
+            logger.info("Configuration loaded from a given dict parameter, rather than a filename.")
         else:
             try:
                 base_config = self.load_file(filename=self.filename)
@@ -80,7 +78,7 @@ class ConfigLoader:
 
         if not config:
             raise NoConnectionsFileError(
-                "No file_name is specified and no files in default locations are found."
+                "No filename is specified and no files in default locations are found."
             )
 
         return config
@@ -90,9 +88,6 @@ class ConfigLoader:
         """Load the specified filename."""
         with open(filename, mode="r", encoding="utf8") as file:
             return safe_load(file.read())
-
-    def load_default_connection_name(self):
-        """If a default connection exists, return its name."""
 
 
 class ConfigValidator:

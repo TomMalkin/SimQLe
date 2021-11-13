@@ -105,12 +105,120 @@ def test_execute_sql_method(mocker):
 
 
 def test_recordset_method(mocker):
-    pass
+    class MockedConnection(simqle.connection.Connection):
+        def __init__(self):
+            self.name = "test connection"
+
+    test_connection = MockedConnection()
+
+    mocked_get_connection = lambda self, con_name: test_connection
+
+    mocker.patch.object(
+        simqle.simqle.ConnectionManager, "get_connection", new=mocked_get_connection
+    )
+
+    mocked_recordset = mocker.patch.object(
+        simqle.actioner.DatabaseActioner, "recordset", autospec=True
+    )
+
+    class MockedConnectionManager(simqle.simqle.ConnectionManager):
+        def __init__(self):
+            pass
+
+    class MockedSimqle(simqle.Simqle):
+        def __init__(self):
+            self.actioner = simqle.actioner.DatabaseActioner()
+            self.connection_manager = MockedConnectionManager()
+
+    sq = MockedSimqle()
+
+    test_sql = "test sql"
+    sq.recordset(test_sql)
+
+    mocked_recordset.assert_called_once_with(
+        sq.actioner,
+        connection=test_connection,
+        sql=test_sql,
+        params=None,
+        reference=None,
+    )
 
 
 def test_record_method(mocker):
-    pass
+    class MockedConnection(simqle.connection.Connection):
+        def __init__(self):
+            self.name = "test connection"
+
+    test_connection = MockedConnection()
+
+    mocked_get_connection = lambda self, con_name: test_connection
+
+    mocker.patch.object(
+        simqle.simqle.ConnectionManager, "get_connection", new=mocked_get_connection
+    )
+
+    mocked_record = mocker.patch.object(
+        simqle.actioner.DatabaseActioner, "record", autospec=True
+    )
+
+    class MockedConnectionManager(simqle.simqle.ConnectionManager):
+        def __init__(self):
+            pass
+
+    class MockedSimqle(simqle.Simqle):
+        def __init__(self):
+            self.actioner = simqle.actioner.DatabaseActioner()
+            self.connection_manager = MockedConnectionManager()
+
+    sq = MockedSimqle()
+
+    test_sql = "test sql"
+    sq.record(test_sql)
+
+    mocked_record.assert_called_once_with(
+        sq.actioner,
+        connection=test_connection,
+        sql=test_sql,
+        params=None,
+        reference=None,
+    )
 
 
 def test_record_scalar_method(mocker):
-    pass
+    class MockedConnection(simqle.connection.Connection):
+        def __init__(self):
+            self.name = "test connection"
+
+    test_connection = MockedConnection()
+
+    mocked_get_connection = lambda self, con_name: test_connection
+
+    mocker.patch.object(
+        simqle.simqle.ConnectionManager, "get_connection", new=mocked_get_connection
+    )
+
+    mocked_record_scalar = mocker.patch.object(
+        simqle.actioner.DatabaseActioner, "record_scalar", autospec=True
+    )
+
+    class MockedConnectionManager(simqle.simqle.ConnectionManager):
+        def __init__(self):
+            pass
+
+    class MockedSimqle(simqle.Simqle):
+        def __init__(self):
+            self.actioner = simqle.actioner.DatabaseActioner()
+            self.connection_manager = MockedConnectionManager()
+
+    sq = MockedSimqle()
+
+    test_sql = "test sql"
+    sq.record_scalar(test_sql)
+
+    mocked_record_scalar.assert_called_once_with(
+        sq.actioner,
+        connection=test_connection,
+        sql=test_sql,
+        params=None,
+        reference=None,
+    )

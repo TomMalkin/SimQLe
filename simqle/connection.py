@@ -21,7 +21,7 @@ class Connection:
     def __init__(self, con_config):
         """Create a new Connection from a config dict."""
         self.driver = con_config["driver"]
-        self.engine = None
+        self._engine = None
         self.name = con_config["name"]
 
         # Edit the connection based on configuration options.
@@ -36,14 +36,13 @@ class Connection:
         else:
             self.connection_string = con_config["connection"]
 
-    def connect(self):
-        """Create an engine based on sqlalchemy's create_engine."""
-        self.engine = create_engine(self.driver + self.connection_string)
-
     @property
     def engine(self):
         """Load the engine if it hasn't been loaded before."""
-        if not self.engine:
-            self.connect()
+        if not self._engine:
+            self._engine = create_engine(self.driver + self.connection_string)
 
-        return self.engine
+        return self._engine
+
+    def connect(self):
+        return self._engine.connect()
