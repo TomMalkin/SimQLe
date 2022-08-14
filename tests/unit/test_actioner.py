@@ -1,13 +1,13 @@
 """Test the DatabaseActioner class."""
-from simqle.actioner import DatabaseActioner
-import simqle
-
 import pytest
+import simqle
+from simqle.actioner import DatabaseActioner
 
 
 def test_init():
 
     database_actioner = DatabaseActioner()
+    assert isinstance(database_actioner, DatabaseActioner)
 
 
 def test_execute_sql_method(mocker):
@@ -46,10 +46,10 @@ def test_execute_sql_method(mocker):
 
     mocker.patch.object(simqle.connection.Connection, "connect", new=lambda: MockedEngine())
 
-    mocker.patch.object(MockedEngine, "execute", auto_spec=True)
-    mocker.patch.object(MockedEngine, "close", auto_spec=True)
-    mocker.patch.object(MockedTransaction, "commit", auto_spec=True)
-    mocker.patch.object(MockedTransaction, "rollback", auto_spec=True)
+    mocker.patch.object(MockedEngine, "execute", autospec=True)
+    mocker.patch.object(MockedEngine, "close", autospec=True)
+    mocker.patch.object(MockedTransaction, "commit", autospec=True)
+    mocker.patch.object(MockedTransaction, "rollback", autospec=True)
 
     database_actioner = DatabaseActioner()
 
@@ -57,7 +57,7 @@ def test_execute_sql_method(mocker):
     mocked_connection = MockedConnection()
     database_actioner.execute_sql(connection=mocked_connection, sql="test sql")
 
-    MockedEngine.execute.assert_called_once_with("test sql")
+    MockedEngine.execute.assert_called_once()
     MockedTransaction.commit.assert_called_once()
     MockedEngine.close.assert_called_once()
 
@@ -120,9 +120,9 @@ def test_get_data_method(mocker):
 
     mocker.patch.object(simqle.connection.Connection, "connect", new=lambda: MockedEngine())
 
-    mocker.patch.object(MockedEngine, "close", auto_spec=True)
-    mocker.patch.object(MockedTransaction, "commit", auto_spec=True)
-    mocker.patch.object(MockedTransaction, "rollback", auto_spec=True)
+    mocker.patch.object(MockedEngine, "close", autospec=True)
+    mocker.patch.object(MockedTransaction, "commit", autospec=True)
+    mocker.patch.object(MockedTransaction, "rollback", autospec=True)
 
     database_actioner = DatabaseActioner()
 

@@ -1,7 +1,7 @@
 """Test the ConfigLoader and Validator classes."""
 import pytest
 
-from simqle.config_loader import ConfigLoader, ConfigValidator
+from simqle.config_loader import ConfigLoader, ConfigValidator, DefaultConnectionConfigValidator
 import simqle
 
 
@@ -153,10 +153,10 @@ def test_config_validator_init():
 def test_validate_method(mocker):
 
     mocker.patch.object(
-        simqle.config_loader.ConfigValidator, "check_default_connections", auto_spec=True
+        simqle.config_loader.ConfigValidator, "check_default_connections", autospec=True
     )
     mocker.patch.object(
-        simqle.config_loader.ConfigValidator, "check_connection_names_match", auto_spec=True
+        simqle.config_loader.ConfigValidator, "check_connection_names_match", autospec=True
     )
 
     config_validator = ConfigValidator({"some config"})
@@ -181,7 +181,6 @@ def test_check_default_connections_method(mocker):
     assert config_validator.default_connection_name == "default connection name"
 
 
-
 def test_check_connection_names_match_method(mocker):
     class Mocked(simqle.config_loader.MatchingConnectionNamesValidator):
         def __init__(self, config):
@@ -191,7 +190,7 @@ def test_check_connection_names_match_method(mocker):
             return "default connection name"
 
     mocker.patch("simqle.config_loader.MatchingConnectionNamesValidator", new=Mocked)
-    mocker.patch.object(Mocked, "validate", auto_spec=True)
+    mocker.patch.object(Mocked, "validate", autospec=True)
 
     config_validator = ConfigValidator({"some": "config"})
     config_validator.check_connection_names_match()
@@ -199,3 +198,57 @@ def test_check_connection_names_match_method(mocker):
     Mocked.validate.assert_called_once()
 
 
+# --- Default Connection Validator ---
+
+
+def test_default_connection_validator_init():
+    DefaultConnectionConfigValidator(config={"some": "config"})
+
+
+def test_get_default_from_connection_type_method():
+    # normal single default
+    test_config = {"connections": [{"name": "some name", "default": True}]}
+    test_class = DefaultConnectionConfigValidator(config=test_config)
+
+    default_name = test_class.get_default_from_connection_type("connections")
+
+    assert default_name == "some name"
+
+    # no default connections
+    test_config = {
+        "connections": [
+            {
+                "name": "some name",
+            }
+        ]
+    }
+    test_class = DefaultConnectionConfigValidator(config=test_config)
+
+    default_name = test_class.get_default_from_connection_type("connections")
+
+    assert default_name is None
+
+    # multiple defaults (error)
+    test_config = {
+        "connections": [
+            {"name": "some name", "default": True},
+            {"name": "another name", "default": True},
+        ]
+    }
+
+    test_class = DefaultConnectionConfigValidator(config=test_config)
+
+    with pytest.raises(simqle.exceptions.MultipleDefaultConnectionsError):
+        default_name = test_class.get_default_from_connection_type("connections")
+
+
+def test_validate_method():
+    test_config = {
+        "connections": [
+            {
+                "name": "some name",
+            }
+        ]
+    }
+
+    test_class = DefaultConnectionConfigValidator(config=test_config)

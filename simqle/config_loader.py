@@ -8,15 +8,16 @@ ConfigValidator is responsible for checking and validating the configuration has
 """
 from yaml import safe_load
 
-from .logging import logger
 from .constants import DEFAULT_FILE_LOCATIONS, MODE_MAP
-from .exceptions import NoConnectionsFileError, EnvironSyncError, MultipleDefaultConnectionsError
+from .exceptions import EnvironSyncError, MultipleDefaultConnectionsError, NoConnectionsFileError
+from .logging import logger
 
 
 class ConfigLoader:
     """Load the configuration with connection details from a given filename and mode."""
 
     def __init__(self, filename, mode):
+        """Initialise this class from a filename and mode."""
         self.filename = filename
         self.mode = mode
 
@@ -27,7 +28,7 @@ class ConfigLoader:
         self.validator = ConfigValidator(config=self.base_config)
         self.validator.validate()
 
-        self.default_connection_name = self.validator.default_connection_name
+        self.default_connection_name = self.base_config.get("default", None)
 
         self.config = self.base_config.get(self.config_section_name)
 
@@ -94,6 +95,7 @@ class ConfigValidator:
     """Validate a configuration."""
 
     def __init__(self, config):
+        """Initialise a ConfigValidator."""
         self.config = config
         self.default_connection_name = None
 

@@ -1,18 +1,16 @@
 """Define DatabaseActioner."""
-import time
-
-from .utility import bind_sql
 from .connection import Connection
-from .container import RecordSet, Record, RecordScalar
+from .container import Record, RecordScalar, RecordSet
 from .logging import logger
 from .timer import Timer
+from .utility import bind_sql
 
 
 class DatabaseActioner:
     """Action commands and queries against database connections."""
 
     def __init__(self):
-        pass
+        """Initialise the class."""
 
     def execute_sql(self, connection: Connection, sql: str, params=None, reference=None):
         """Execute sql against a database connection, and rollback on error."""
@@ -114,4 +112,4 @@ class DatabaseActioner:
 
         This is the user given reference or the first 20 characters of the query.
         """
-        return reference or " ".join([l.strip() for l in sql.splitlines()]).strip()[:20]
+        return reference or " ".join([line.strip() for line in sql.splitlines()]).strip()[:20]
