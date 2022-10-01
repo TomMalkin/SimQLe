@@ -21,6 +21,7 @@ PyMySQL = "^1.0.2"
 pytest = "^6.2.5"
 pytest-mock = "^3.6.1"
 pylint = "^2.11.1"
+mypy = "^0.971"
 
 [build-system]
 requires = ["poetry>=0.12"]

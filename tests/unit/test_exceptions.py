@@ -5,8 +5,6 @@ def test_import():
         NoConnectionsFileError,
         UnknownConnectionError,
         EnvironSyncError,
-        NoDefaultConnectionError,
-        MultipleDefaultConnectionsError,
         UnknownSimqleMode,
         UnknownHeadingError,
         NoScalarDataError,

@@ -10,7 +10,7 @@ The three types of data that are commonly returned are:
 DataContainer is the common set of setup that all the data containers undergo before filtering to
 their type of return data.
 """
-from .exceptions import UnknownHeadingError, NoScalarDataError
+from .exceptions import NoScalarDataError, UnknownHeadingError
 from .logging import logger
 
 
@@ -27,13 +27,13 @@ class RecordSet:
 
     def __iter__(self):
         """Iterate through the data records."""
-        if self:
+        if self.data:
             return iter(self.data)
         return iter(())
 
     def dict_gen(self):
         """Iterate over records as dictionaries."""
-        if self:
+        if self.data:
             for record in self.data:
                 yield dict(zip(self.headings, record))
 
@@ -44,7 +44,7 @@ class RecordSet:
         Creates a copy of the data, so isn't very efficient for larger
         data sets.
         """
-        if self:
+        if self.data:
             return [dict(zip(self.headings, self.data)) for record in self.data or []]
         return []
 
@@ -71,7 +71,10 @@ class Record:
 
         self.headings = headings
         self.data = data[0] if data else None
-        self._dict = None
+
+        self._dict = {}
+        if self.data:
+            self._dict = dict(zip(self.headings, self.data))
 
     def __getitem__(self, heading):
         """Return a value based on a heading."""
@@ -81,13 +84,7 @@ class Record:
             raise UnknownHeadingError(heading) from exception
 
     def as_dict(self):
-        """Return this record as a dict, lazily."""
-        if self._dict is not None:
-            if self.data:
-                self._dict = dict(zip(self.headings, self.data))
-            else:
-                self._dict = {}
-
+        """Return this record as a dict."""
         return self._dict
 
     def __bool__(self):
@@ -109,7 +106,8 @@ class RecordScalar:
      - The data returned equates to False: like 0 or an empty string
      - the data returned equates to True: like 1 or a non-empty string
 
-    The truthiness is set to: 'Was a value, even null, returned from the database?'.
+    The truthiness is set to the answer to the question: 'Was any value, even null, returned from
+    the database?'.
     """
 
     def __init__(self, headings, data):
@@ -118,22 +116,22 @@ class RecordScalar:
 
         # Only keep None or the first value of data.
         if data:
-            self._bool = True
-            self._datum = [data[0][0]]
+            self.is_data_returned = True
+            self._datum = data[0][0]
         else:
-            self._bool = False
+            self.is_data_returned = False
             self._datum = None
 
     def __bool__(self):
         """Was a value, even null, returned from the database?."""
-        return self._bool
+        return self.is_data_returned
 
     @property
     def datum(self):
         """Return a naive scalar value that assumes it's own existance."""
-        if not self:
+        if not self.is_data_returned:
             raise NoScalarDataError()
-        return self._datum[0]
+        return self._datum
 
     def sdatum(self, default=None):
         """
@@ -144,4 +142,4 @@ class RecordScalar:
         """
         if not self:
             return default
-        return self._datum[0]
+        return self._datum

@@ -1,7 +1,7 @@
 """
-Define the ModeLoader class.
+Load the mode that Simqle will run in.
 
-ModeLoader is responsible for loading the mode that simqle should run in:
+The modes are:
  - production
  - development
  - testing

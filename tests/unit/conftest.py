@@ -1,8 +1,44 @@
 from simqle import Simqle
 from simqle.container import RecordSet, Record, RecordScalar
 from simqle.connection import Connection
+from simqle.connection_manager import ConnectionManager
+from simqle.actioner import DatabaseActioner
 import pytest
 
+@pytest.fixture()
+def mocked_simqle(mocked_database_actioner, mocked_connection_manager):
+    def mocked_simqle_getter(config, default_connection_name):
+        class MockedSimqle(Simqle):
+            def __init__(self, src=None, mode_override=None):
+                self.src = src or "test src"
+                self.mode_override = mode_override or "test mode_override"
+
+                self.config = config
+                self.default_connection_name = default_connection_name
+
+                self.actioner = mocked_database_actioner()
+                self.connection_manager = mocked_connection_manager()
+
+        return MockedSimqle
+    return mocked_simqle_getter
+
+
+@pytest.fixture()
+def mocked_connection_manager():
+    class MockedConnectionManager(ConnectionManager):
+        def __init__(self, config=None, default_connection_name=None):
+            self.config = config or "test config"
+            self._default_connection_name = default_connection_name or "test name"
+
+    return MockedConnectionManager
+
+
+@pytest.fixture()
+def mocked_database_actioner():
+    class MockedDatabaseActioner(DatabaseActioner):
+        def __init__(self):
+            pass
+    return MockedDatabaseActioner
 
 # class TestRecordSet(RecordSet):
     # def __init__(self, headings, data):

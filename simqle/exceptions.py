@@ -1,7 +1,7 @@
 """Defines the exceptions used by SimQLe."""
 
 
-class NoConnectionsFileError(Exception):
+class DefaultSimqleError(Exception):
     """Raise when no .connections.yaml files are found."""
 
     def __init__(self, msg):
@@ -9,44 +9,36 @@ class NoConnectionsFileError(Exception):
         self.message = msg
 
 
-class UnknownConnectionError(Exception):
+class NoDefaultConnectionError(DefaultSimqleError):
+    """Raise when no con_name was given and no default connection name exists."""
+
+
+class UnknownSourceTypeError(DefaultSimqleError):
+    """Raise when the type of the src given to a SimQLe class is unknown."""
+
+
+class NoConnectionsFileError(DefaultSimqleError):
+    """Raise when no .connections.yaml files are found."""
+
+
+class MissingFieldError(DefaultSimqleError):
+    """Raise when there is a missing field in a connection."""
+
+
+class UnknownConnectionError(DefaultSimqleError):
     """Raise when the given connection name doesn't have a Connection."""
 
-    def __init__(self, msg):
-        super().__init__(msg)
-        self.message = msg
 
-
-class EnvironSyncError(Exception):
+class EnvironSyncError(DefaultSimqleError):
     """Raise when the environment in dev or test doesn't match production."""
 
-    def __init__(self, msg):
-        super().__init__(msg)
-        self.message = msg
+
+class AmbigiousLoadTypeError(DefaultSimqleError):
+    """Raise when both file_name and config is supplised."""
 
 
-class NoDefaultConnectionError(Exception):
-    """Raise when no con_name is given but there isn't a default connection in the config."""
-
-    def __init__(self, msg):
-        super().__init__(msg)
-        self.message = msg
-
-
-class MultipleDefaultConnectionsError(Exception):
-    """Raise when a config has multiple default connections."""
-
-    def __init__(self, msg):
-        super().__init__(msg)
-        self.message = msg
-
-
-class UnknownSimqleMode(Exception):
+class UnknownSimqleMode(DefaultSimqleError):
     """Raise when the SIMQLE_MODE var isn't a known mode."""
-
-    def __init__(self, msg):
-        super().__init__(msg)
-        self.message = msg
 
 
 class UnknownHeadingError(Exception):

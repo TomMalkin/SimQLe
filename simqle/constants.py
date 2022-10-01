@@ -13,3 +13,5 @@ DEFAULT_FILE_LOCATIONS = [
     # the home folder on either Linux or Windows
     join(expanduser("~"), ".connections.yaml")
 ]
+
+REQUIRED_FIELDS = ["name", "driver", "connection"]

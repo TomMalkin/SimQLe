@@ -2,9 +2,9 @@
 
 __version__ = "0.5.8"
 
+from .logging import RECOMMENDED_LOG_FORMAT
 from .simqle import Simqle
 from .utility import bind_sql
-from .logging import RECOMMENDED_LOG_FORMAT
 
 __all__ = [
     "Simqle",
