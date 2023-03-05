@@ -1,9 +1,12 @@
+import pytest
 from simqle import Simqle
-from simqle.container import RecordSet, Record, RecordScalar
+from simqle.actioner import DatabaseActioner, Transaction
+from simqle.config_loader import ConfigLoader, ConfigValidator
 from simqle.connection import Connection
 from simqle.connection_manager import ConnectionManager
-from simqle.actioner import DatabaseActioner
-import pytest
+from simqle.container import Record, RecordScalar, RecordSet
+from simqle.timer import Timer
+
 
 @pytest.fixture()
 def mocked_simqle(mocked_database_actioner, mocked_connection_manager):
@@ -20,6 +23,7 @@ def mocked_simqle(mocked_database_actioner, mocked_connection_manager):
                 self.connection_manager = mocked_connection_manager()
 
         return MockedSimqle
+
     return mocked_simqle_getter
 
 
@@ -38,73 +42,88 @@ def mocked_database_actioner():
     class MockedDatabaseActioner(DatabaseActioner):
         def __init__(self):
             pass
+
     return MockedDatabaseActioner
 
-# class TestRecordSet(RecordSet):
-    # def __init__(self, headings, data):
-        # self.headings = headings
-        # self.data = data
+
+@pytest.fixture()
+def mocked_config_loader():
+    def mocked_config_loader_getter(config):
+        class MockedConfigLoader(ConfigLoader):
+            def __init__(self, src, mode):
+                self.src = src
+                self.mode = mode
+                self._config = config
+
+        return MockedConfigLoader
+
+    return mocked_config_loader_getter
 
 
-# class TestRecord(Record):
-    # def __init__(self, headings, data):
-        # self.headings = headings
-        # self.data = data
+@pytest.fixture()
+def mocked_timer():
+    def mocked_timer_getter(elapsed_time=2):
+        class MockedTimer(Timer):
+            def __init__(self):
+                pass
+
+            def get_elapsed_time(self):
+                return elapsed_time
+
+        return MockedTimer
+
+    return mocked_timer_getter
 
 
-# class TestRecordScalar(RecordScalar):
-    # def __init__(self, headings, data):
-        # self.headings = headings
-        # self.data = data
+@pytest.fixture()
+def mocked_transaction(mocked_connection):
+    class MockedTransaction(Transaction):
+        def __init__(self, connection=mocked_connection()):
+            self.connection = connection
+            print("something")
+
+    def __eq__(self, other):
+        return isinstance(other, MockedTransaction)
+
+    def __ne__(self, other):
+        return not isinstance(other, MockedTransaction)
+
+    return MockedTransaction
 
 
-# @pytest.fixture()
-# def get_connection_manager_mock(mocker, test_config):
-    # """Yield an initiliased connection manager with basic settings as a mock."""
+@pytest.fixture()
+def mocked_connection():
+    class MockedConnection(Connection):
+        def __init__(self, config={"some": "config"}):
+            self.config = config
+            self.name = "test name"
+            self.driver = "test driver"
+            self._engine = "test engine"
 
-    # mocker.patch.object(ConnectionManager, "_get_mode", new=lambda self: "production")
-    # mocker.patch.object(ConnectionManager, "_get_mode_name", new=lambda self, mode: "connections")
-
-    # mocker.patch.object(ConnectionManager, "_load_config", new=lambda self, file_name: test_config)
-
-    # mocker.patch.object(ConnectionManager, "_load_default_connection", new=lambda self: None)
-
-    # # cm = ConnectionManager()
-
-    # yield ConnectionManager
-
-# @pytest.fixture()
-# def get_connection_mock(mocker):
-    # """Yield an initialised _Connection object with basic settings."""
-    # class _TestConnection(_Connection):
-        # def __init__(self):
-            # self.driver = "test driver"
-            # self._engine = None
-            # self.name = "test name"
-            # self.connection_string = "test connection string"
-
-    # yield _TestConnection
+    return MockedConnection
 
 
+@pytest.fixture()
+def generic_exception():
+    class GenericException(Exception):
+        pass
 
-# @pytest.fixture()
-# def get_recordset_mock(mocker):
-    # mocker.patch("simqle.recordset.RecordSet")
-    # yield RecordSet
+    return GenericException
 
-
-# @pytest.fixture()
-# def get_record_mock(mocker):
-    # mocker.patch(Record, new=TestRecord)
-    # yield Record
-
-
-# @pytest.fixture()
-# def get_record_scalar_mock(mocker):
-    # mocker.patch(RecordScalar, new=TestRecordScalar)
-    # yield RecordScalar
+@pytest.fixture()
+def mocked_config_validator():
+    class MockedConfigValidator(ConfigValidator):
+        def __init__(self, config):
+            self.config = config
+    return MockedConfigValidator
 
 
-# @pytest.fixture()
-# def test_config():
-    # yield {"example": "config"}
+@pytest.fixture()
+def mocked_config_loader():
+    class MockedConfigLoader(ConfigLoader):
+        def __init__(self, src, mode):
+            self.src = src
+            self.mode = mode
+    return MockedConfigLoader
+
+

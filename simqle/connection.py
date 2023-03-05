@@ -34,7 +34,3 @@ class Connection:
             self._engine = create_engine(self.driver + self.connection_string)
 
         return self._engine
-
-    def connect(self):
-        """Return the engine connection."""
-        return self.engine.connect()

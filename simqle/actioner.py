@@ -18,8 +18,7 @@ class DatabaseActioner:
 
         bound_sql = bind_sql(sql, params) if params else sql
 
-        engine = connection.connect()
-        transaction = engine.begin()
+        transaction = Transaction(connection)
 
         logger.info(
             f"Execution query called [connection='{connection.name}', "
@@ -29,15 +28,19 @@ class DatabaseActioner:
         timer = Timer()
 
         try:
-            engine.execute(bound_sql)
+            transaction.execute(bound_sql)
             transaction.commit()
 
         except Exception as exception:
             transaction.rollback()
+            logger.error(
+                f"Execution query error [connection='{connection.name}', "
+                f"reference='{reference}', params={params}]"
+            )
             raise exception
 
         finally:
-            engine.close()
+            transaction.finalise()
 
         elapsed_time = timer.get_elapsed_time()
 
@@ -52,8 +55,7 @@ class DatabaseActioner:
 
         bound_sql = bind_sql(sql, params) if params else sql
 
-        engine = connection.connect()
-        transaction = engine.begin()
+        transaction = Transaction(connection)
 
         logger.info(
             f"Query called [connection='{connection.name}', "
@@ -63,17 +65,19 @@ class DatabaseActioner:
         timer = Timer()
 
         try:
-            result = engine.execute(bound_sql)
-            data = result.fetchall()
-            headings = list(result.keys())
+            headings, data = transaction.get_data(bound_sql)
             transaction.commit()
 
         except Exception as exception:
             transaction.rollback()
+            logger.error(
+                f"Get data query error [connection='{connection.name}', "
+                f"reference='{reference}', params={params}]"
+            )
             raise exception
 
         finally:
-            engine.close()
+            transaction.finalise()
 
         elapsed_time = timer.get_elapsed_time()
 
@@ -113,3 +117,36 @@ class DatabaseActioner:
         This is the user given reference or the first 20 characters of the query.
         """
         return reference or " ".join([line.strip() for line in sql.splitlines()]).strip()[:20]
+
+
+class Transaction:
+    """Manage a transaction using an engine."""
+
+    def __init__(self, connection: Connection):
+        """Initialise a Transaction using a connection."""
+        self.connection = connection
+        self.engine = self.connection.engine.connect()
+        self.transaction = self.engine.begin()
+
+    def rollback(self):
+        """Use the rollback function of a transaction."""
+        self.transaction.rollback()
+
+    def finalise(self):
+        """If the query was successful, then finalise the transaction."""
+        self.engine.close()
+
+    def execute(self, bound_sql):
+        """Execute sql against the transaction."""
+        self.engine.execute(bound_sql)
+
+    def commit(self):
+        """Commit the current transaction to the database."""
+        self.transaction.commit()
+
+    def get_data(self, bound_sql):
+        """Get data from a transaction."""
+        result = self.engine.execute(bound_sql)
+        data = result.fetchall()
+        headings = list(result.keys())
+        return headings, data
