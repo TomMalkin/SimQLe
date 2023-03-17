@@ -5,6 +5,7 @@ class DefaultSimqleError(Exception):
     """Raise when no .connections.yaml files are found."""
 
     def __init__(self, msg):
+        """Initialise the default msg."""
         super().__init__(msg)
         self.message = msg
 

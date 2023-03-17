@@ -7,7 +7,7 @@ def bind_sql(sql, params):
     """
     Bind parameters to a SQL query.
 
-    Useful if the library that is executing your query, for exaple pandas,
+    Useful if the library that is executing your query, for example pandas,
     doesn't like named parameters. bind_sql will return a sql query with the
     parameters bound to the query.
 

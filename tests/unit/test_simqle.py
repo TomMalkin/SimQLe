@@ -1,246 +1,220 @@
 """Test the main Simqle class."""
 
 import simqle
+from pytest import raises
 
 
-def test_init(mocker):
-    # from simqle.mode_loader import mode_loader
-    test_config = {"test key": "test value"}
-    test_default_name = "test default name"
-
-    mocker.patch(
-        "simqle.simqle.mode_loader",
-        autospec=True,
-        return_value="testing",
-    )
+def test_init(mocker, example_configuration):
+    """Test the initilisation of a Simqle class with a filename."""
+    mocker.patch("os.getenv", return_value="development")
 
     mocker.patch.object(
         simqle.Simqle,
-        attribute="_load_config",
+        attribute="load_config_from_file",
         autospec=True,
-        return_value=test_config,
+        return_value=example_configuration,
     )
 
-    mocker.patch(
-        "simqle.simqle.load_default_connection_name",
-        autospec=True,
-        return_value=test_default_name,
-    )
+    test_simqle = simqle.Simqle(file_name="./.connections.yaml")
 
-    mocked_connection_manager = simqle.connection_manager.ConnectionManager(
-        test_config,
-        test_default_name,
-    )
+    assert test_simqle.file_name == "./.connections.yaml"
+    assert test_simqle.mode == "development"
+    assert test_simqle.section == "dev-connections"
+    assert test_simqle.full_config == example_configuration
+    assert test_simqle.config == example_configuration.get("dev-connections")
+    assert test_simqle.default_connection_name == "connection1"
+
+
+def test_init_mode_override(mocker, example_configuration):
+    """Test the mode override option."""
+    mocker.patch("os.getenv", return_value="development")
 
     mocker.patch.object(
         simqle.Simqle,
-        attribute="_load_connection_manager",
+        attribute="load_config_from_file",
         autospec=True,
-        return_value=mocked_connection_manager,
+        return_value=example_configuration,
     )
 
-    mocker.patch("simqle.simqle.DatabaseActioner.__init__", return_value=None)
+    # os.getenv will return "development", but we're overriding using "production"
+    test_simqle = simqle.Simqle(file_name="./.connections.yaml", mode_override="production")
 
-    sq = simqle.Simqle(src="test source")
-
-    assert sq.mode == "testing"
-    assert sq.config == test_config
-    assert sq.default_connection_name == test_default_name
-    assert sq.connection_manager is mocked_connection_manager
-    assert isinstance(sq.actioner, simqle.actioner.DatabaseActioner)
-
-
-def test_load_connection_manager_method(mocker, mocked_simqle, mocked_connection_manager):
-
-    test_config = {"some": "config"}
-    test_name = "some name"
-
-    mocker.patch("simqle.simqle.ConnectionManager", new=mocked_connection_manager)
-    mocker.patch("simqle.simqle.Simqle", new=mocked_simqle(test_config, test_name))
-
-    sq = simqle.simqle.Simqle(src="some src", mode_override="some override")
-
-    loaded_connection_manager = sq._load_connection_manager()
-
-    assert loaded_connection_manager.config == test_config
-    assert loaded_connection_manager._default_connection_name == test_name
+    assert test_simqle.file_name == "./.connections.yaml"
+    assert test_simqle.mode == "production"
+    assert test_simqle.section == "connections"
+    assert test_simqle.full_config == example_configuration
+    assert test_simqle.config == example_configuration.get("connections")
+    assert test_simqle.default_connection_name == "connection1"
 
 
-def test_execute_sql_method(mocker, mocked_simqle, mocked_connection_manager):
-    test_config = {"some": "config"}
-    test_name = "some name"
-    test_connection = "some connection"
-    test_sql = "some sql"
-    test_params = {"some": "params"}
-    test_reference = "some reference"
-    test_con_name = "some con name"
+def test_from_dict_class_method(mocker, example_configuration):
+    """Test that the class can be created from the from_dict classmethod."""
+    mocker.patch("os.getenv", return_value="development")
 
-    mocker.patch("simqle.simqle.Simqle", new=mocked_simqle(test_config, test_name))
-    mocker.patch("simqle.simqle.ConnectionManager", new=mocked_connection_manager)
+    # create the simqle class using the from_dict classmethod
+    test_simqle = simqle.Simqle.from_dict(config_dict=example_configuration)
 
-    sq = simqle.simqle.Simqle(src="some src", mode_override="some override")
+    assert test_simqle.file_name is None
+    assert test_simqle.mode == "development"
+    assert test_simqle.section == "dev-connections"
+    assert test_simqle.full_config == example_configuration
+    assert test_simqle.config == example_configuration.get("dev-connections")
+    assert test_simqle.default_connection_name == "connection1"
 
-    assert sq.connection_manager.config == "test config"
 
-    mocked_get_connection = mocker.patch.object(
-        sq.connection_manager,
-        "get_connection",
+def test_missing_section(mocker):
+    """Test that if the section is missing then an error is rasied."""
+    mocker.patch("os.getenv", return_value="not a mode")
+
+    mocker.patch.object(
+        simqle.Simqle,
+        attribute="load_config_from_file",
         autospec=True,
-        return_value=test_connection,
+        return_value={},
     )
 
-    mocked_execute_sql = mocker.patch.object(sq.actioner, "execute_sql", autospec=True)
-
-    sq.execute_sql(
-        sql=test_sql,
-        con_name=test_con_name,
-        params=test_params,
-        reference=test_reference,
-    )
-
-    mocked_execute_sql.assert_called_once_with(
-        connection=test_connection,
-        sql=test_sql,
-        params=test_params,
-        reference=test_reference,
-    )
-    mocked_get_connection.assert_called_once_with(con_name=test_con_name)
+    with raises(ValueError):
+        _ = simqle.Simqle(file_name="./.connections.yaml")
 
 
-def test_recordset_method(mocker, mocked_simqle, mocked_connection_manager):
-    test_config = {"some": "config"}
-    test_name = "some name"
-    test_connection = "some connection"
-    test_sql = "some sql"
-    test_params = {"some": "params"}
-    test_reference = "some reference"
-    test_con_name = "some con name"
+def test_init_with_no_default(mocker, example_configuration_with_no_default):
+    """Test the initilisation of a Simqle class with a filename."""
+    mocker.patch("os.getenv", return_value="development")
 
-    mocker.patch("simqle.simqle.Simqle", new=mocked_simqle(test_config, test_name))
-    mocker.patch("simqle.simqle.ConnectionManager", new=mocked_connection_manager)
-
-    sq = simqle.simqle.Simqle(src="some src", mode_override="some override")
-
-    assert sq.connection_manager.config == "test config"
-
-    mocked_get_connection = mocker.patch.object(
-        sq.connection_manager,
-        "get_connection",
+    mocker.patch.object(
+        simqle.Simqle,
+        attribute="load_config_from_file",
         autospec=True,
-        return_value=test_connection,
+        return_value=example_configuration_with_no_default,
     )
 
-    mocked_recordset = mocker.patch.object(sq.actioner, "recordset", autospec=True)
+    test_simqle = simqle.Simqle(file_name="./.connections.yaml")
 
-    sq.recordset(
-        sql=test_sql,
-        con_name=test_con_name,
-        params=test_params,
-        reference=test_reference,
-    )
-
-    mocked_recordset.assert_called_once_with(
-        connection=test_connection,
-        sql=test_sql,
-        params=test_params,
-        reference=test_reference,
-    )
-    mocked_get_connection.assert_called_once_with(con_name=test_con_name)
+    assert test_simqle.default_connection_name is None
 
 
-def test_record_method(mocker, mocked_simqle, mocked_connection_manager):
-    test_config = {"some": "config"}
-    test_name = "some name"
-    test_connection = "some connection"
-    test_sql = "some sql"
-    test_params = {"some": "params"}
-    test_reference = "some reference"
-    test_con_name = "some con name"
+def test_load_config_from_file(mocker, example_configuration):
+    """Test loading a config from a file."""
+    mocker.patch("builtins.open", mocker.mock_open())
+    mocker.patch("simqle.simqle.safe_load", return_value=example_configuration)
 
-    mocker.patch("simqle.simqle.Simqle", new=mocked_simqle(test_config, test_name))
-    mocker.patch("simqle.simqle.ConnectionManager", new=mocked_connection_manager)
+    config = simqle.Simqle.load_config_from_file(file_name="examplefile")
 
-    sq = simqle.simqle.Simqle(src="some src", mode_override="some override")
+    assert config == example_configuration
 
-    assert sq.connection_manager.config == "test config"
 
-    mocked_get_connection = mocker.patch.object(
-        sq.connection_manager,
-        "get_connection",
+def test_load_config_from_file_missing(mocker):
+    """Test loading a config from a file that doesn't exist."""
+    mocker.patch("builtins.open", mocker.mock_open())
+    mocker.patch("simqle.simqle.safe_load", side_effect=FileNotFoundError())
+
+    with raises(FileNotFoundError):
+        _ = simqle.Simqle.load_config_from_file(file_name="examplefile")
+
+
+def test_execute_sql_method(mocker, example_configuration, mocked_connection):
+    """Test the execute_sql method."""
+    mocker.patch("os.getenv", return_value="development")
+    mocker.patch.object(
+        simqle.Simqle,
+        attribute="load_config_from_file",
         autospec=True,
-        return_value=test_connection,
+        return_value=example_configuration,
     )
 
-    mocked_record = mocker.patch.object(sq.actioner, "record", autospec=True)
-
-    sq.record(
-        sql=test_sql,
-        con_name=test_con_name,
-        params=test_params,
-        reference=test_reference,
+    mocker.patch.object(
+        simqle.simqle.ConnectionManager,
+        attribute="get_connection",
+        return_value=mocked_connection,
+    )
+    mocker.patch.object(
+        simqle.simqle.DatabaseActioner,
+        attribute="execute_sql",
     )
 
-    mocked_record.assert_called_once_with(
-        connection=test_connection,
-        sql=test_sql,
-        params=test_params,
-        reference=test_reference,
-    )
-    mocked_get_connection.assert_called_once_with(con_name=test_con_name)
+    test_simqle = simqle.Simqle(file_name="./.connections.yaml")
+
+    test_simqle.execute_sql(sql="some_sql")
+
+    test_simqle.actioner.execute_sql.assert_called_once()
 
 
-def test_record_scalar_method(mocker, mocked_simqle, mocked_connection_manager):
-    test_config = {"some": "config"}
-    test_name = "some name"
-    test_connection = "some connection"
-    test_sql = "some sql"
-    test_params = {"some": "params"}
-    test_reference = "some reference"
-    test_con_name = "some con name"
-
-    mocker.patch("simqle.simqle.Simqle", new=mocked_simqle(test_config, test_name))
-    mocker.patch("simqle.simqle.ConnectionManager", new=mocked_connection_manager)
-
-    sq = simqle.simqle.Simqle(src="some src", mode_override="some override")
-
-    assert sq.connection_manager.config == "test config"
-
-    mocked_get_connection = mocker.patch.object(
-        sq.connection_manager,
-        "get_connection",
+def test_recordset_method(mocker, example_configuration, mocked_connection):
+    """Test the recordset method."""
+    mocker.patch("os.getenv", return_value="development")
+    mocker.patch.object(
+        simqle.Simqle,
+        attribute="load_config_from_file",
         autospec=True,
-        return_value=test_connection,
+        return_value=example_configuration,
     )
 
-    mocked_record_scalar = mocker.patch.object(sq.actioner, "record_scalar", autospec=True)
-
-    sq.record_scalar(
-        sql=test_sql,
-        con_name=test_con_name,
-        params=test_params,
-        reference=test_reference,
+    test_connection = mocker.patch.object(
+        simqle.simqle.ConnectionManager,
+        attribute="get_connection",
+        return_value=mocked_connection,
+    )
+    mocker.patch.object(
+        simqle.simqle.DatabaseActioner,
+        attribute="recordset",
     )
 
-    mocked_record_scalar.assert_called_once_with(
-        connection=test_connection,
-        sql=test_sql,
-        params=test_params,
-        reference=test_reference,
+    test_simqle = simqle.Simqle(file_name="./.connections.yaml")
+
+    test_simqle.recordset(sql="some_sql")
+
+    test_simqle.actioner.recordset.assert_called_once()
+
+
+def test_record_method(mocker, example_configuration, mocked_connection):
+    """Test the recordset method."""
+    mocker.patch("os.getenv", return_value="development")
+    mocker.patch.object(
+        simqle.Simqle,
+        attribute="load_config_from_file",
+        autospec=True,
+        return_value=example_configuration,
     )
-    mocked_get_connection.assert_called_once_with(con_name=test_con_name)
+
+    mocker.patch.object(
+        simqle.simqle.ConnectionManager,
+        attribute="get_connection",
+        return_value=mocked_connection,
+    )
+    mocker.patch.object(
+        simqle.simqle.DatabaseActioner,
+        attribute="record",
+    )
+
+    test_simqle = simqle.Simqle(file_name="./.connections.yaml")
+
+    test_simqle.record(sql="some_sql")
+
+    test_simqle.actioner.record.assert_called_once()
 
 
-def test_load_config_method(mocker, mocked_config_loader, mocked_simqle):
-    test_config = {"some": "config"}
-    test_name = "some name"
+def test_record_scalar_method(mocker, example_configuration, mocked_connection):
+    """Test the record_scalarset method."""
+    mocker.patch("os.getenv", return_value="development")
+    mocker.patch.object(
+        simqle.Simqle,
+        attribute="load_config_from_file",
+        autospec=True,
+        return_value=example_configuration,
+    )
 
-    mocker.patch("simqle.simqle.ConfigLoader", new=mocked_config_loader(config=test_config))
-    mocker.patch("simqle.simqle.Simqle", new=mocked_simqle(test_config, test_name))
+    mocker.patch.object(
+        simqle.simqle.ConnectionManager,
+        attribute="get_connection",
+        return_value=mocked_connection,
+    )
+    mocker.patch.object(
+        simqle.simqle.DatabaseActioner,
+        attribute="record_scalar",
+    )
 
-    sq = simqle.simqle.Simqle(src="some src", mode_override="some override")
+    test_simqle = simqle.Simqle(file_name="./.connections.yaml")
 
-    config_loader = sq._load_config(src="some src", mode="some mode")
+    test_simqle.record_scalar(sql="some_sql")
 
-    assert config_loader == test_config
-
-
+    test_simqle.actioner.record_scalar.assert_called_once()

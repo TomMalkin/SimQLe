@@ -1,4 +1,5 @@
 """Load Constants."""
+
 from os.path import expanduser, join
 
 MODE_MAP = {

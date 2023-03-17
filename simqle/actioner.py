@@ -1,4 +1,5 @@
 """Define DatabaseActioner."""
+
 from .connection import Connection
 from .container import Record, RecordScalar, RecordSet
 from .logging import logger
@@ -124,29 +125,50 @@ class Transaction:
 
     def __init__(self, connection: Connection):
         """Initialise a Transaction using a connection."""
+        # self.connection = connection
+        # self.engine = self.connection.engine.connect()
+        # self.transaction = self.engine.begin()
+
         self.connection = connection
-        self.engine = self.connection.engine.connect()
-        self.transaction = self.engine.begin()
+        self.engine = self.get_engine()
+        self.connected_engine = self.connect_engine()
+        self.communication = self.begin_transaction()
+
+        # engine = self.get_engine(connection)
+        # self.connected_engine = self.connect_engine(engine)
+        # self.transaction = self.begin_transaction(self.connected_engine)
+
+    def get_engine(self):
+        """Get the SQL Alchemy engine from a Connection."""
+        return self.connection.engine
+
+    def connect_engine(self):
+        """Connect the engine to the database."""
+        return self.engine.connect()
+
+    def begin_transaction(self):
+        """Start a transaction."""
+        return self.connected_engine.begin()
 
     def rollback(self):
         """Use the rollback function of a transaction."""
-        self.transaction.rollback()
+        self.communication.rollback()
 
     def finalise(self):
         """If the query was successful, then finalise the transaction."""
-        self.engine.close()
+        self.connected_engine.close()
 
     def execute(self, bound_sql):
         """Execute sql against the transaction."""
-        self.engine.execute(bound_sql)
+        self.connected_engine.execute(bound_sql)
 
     def commit(self):
         """Commit the current transaction to the database."""
-        self.transaction.commit()
+        self.communication.commit()
 
     def get_data(self, bound_sql):
         """Get data from a transaction."""
-        result = self.engine.execute(bound_sql)
+        result = self.connected_engine.execute(bound_sql)
         data = result.fetchall()
         headings = list(result.keys())
         return headings, data

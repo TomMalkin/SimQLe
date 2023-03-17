@@ -1,11 +1,15 @@
 """Define the public facing user interface class."""
 
+import os
+
+from yaml import safe_load
+
 from .actioner import DatabaseActioner
-from .config_loader import ConfigLoader, load_default_connection_name
+from .config_validator import validate_configuration
 from .connection_manager import ConnectionManager
+from .constants import MODE_MAP
 from .container import Record, RecordScalar, RecordSet
 from .logging import logger
-from .mode_loader import mode_loader
 
 
 class Simqle:
@@ -15,47 +19,65 @@ class Simqle:
     Run a SQL query against a connection with execute_sql, or do so and return data with recordset,
     record and record_scalar.
     """
+    actioner = DatabaseActioner()
 
-    def __init__(self, src=None, mode_override=None):
+    def __init__(self, file_name=None, mode_override=None, _override_config=None):
         """
-        Load a Simqle class from a src.
-
-        The options for the source are a str, which will be a file path to a .connections.yaml file.
-        Or a dict, in which case that is loaded as the config. Or it is None, in which case default
-        locations are searched, starting with the directory that python was called from.
+        Load a Simqle class from a .connection.yaml file.
 
         The connections chosen are based on the mode that SimQLe is running: production, development
-        or testing.
+        or testing. This mode is set via the SIMQLE_MODE environment variable, or you can override
+        it with the mode_override parameter.
 
-        The general set up of this class is:
-
-        The src is loaded using a ConfigLoader outputting a config dict. The config is then passed
-        to a ConnectionManager that handles all the named connections we might want. We get a
-        connection from the ConnectionManager, and execute SQL against it using a DatabaseActioner.
+        If _override_config is given, then ignore the file_name parameter.
         """
-        self.src = src
-        self.mode = mode_loader(override=mode_override)
+        self.file_name = file_name
+        self.mode = mode_override or os.getenv("SIMQLE_MODE", "production")
+        self.section = MODE_MAP.get(self.mode)
+
+        if not self.section:
+            raise ValueError(f"Unknown SimQLe Mode: {self.mode}")
+
         logger.info(f"Simqle mode set [mode={self.mode}]")
 
-        self.config = self._load_config(self.src, self.mode)
+        self.full_config = _override_config or self.load_config_from_file(self.file_name)
 
-        self.default_connection_name = load_default_connection_name(self.config)
-        logger.info(f"SimQLe default connection set to {self.default_connection_name}")
+        validate_configuration(configuration=self.full_config)
 
-        self.connection_manager = self._load_connection_manager()
+        self.config = self.full_config.get(self.section)
 
-        self.actioner = DatabaseActioner()
+        self.default_connection_name = self.full_config.get("default")
+        if self.default_connection_name:
+            logger.info(f"SimQLe default connection set to {self.default_connection_name}")
 
-    def _load_connection_manager(self):
-        return ConnectionManager(
+        self.connection_manager = ConnectionManager(
             config=self.config,
             default_connection_name=self.default_connection_name,
         )
 
+        # self.actioner = DatabaseActioner()
+
+    @classmethod
+    def from_dict(cls, config_dict, mode_override=None):
+        """Load a Simqle object from a dict rather than a file name."""
+        return cls(mode_override=mode_override, _override_config=config_dict)
+
     @staticmethod
-    def _load_config(src, mode):
-        """Load the config from a given src and mode."""
-        return ConfigLoader(src, mode=mode).config
+    def load_config_from_file(file_name):
+        """Return the configuration from a given file_name."""
+        file_name = file_name or "./.connections.yaml"
+
+        try:
+            with open(file_name, mode="r", encoding="utf8") as file:
+                config = safe_load(file.read())
+                logger.info(f"Configuration loaded from file [file={file_name}]")
+
+                return config
+
+        except FileNotFoundError as exception:
+            raise FileNotFoundError(
+                f"Cannot find the specified connections file [{file_name}]"
+            ) from exception
 
     def execute_sql(self, sql, con_name=None, params=None, reference=None):
         """Execute SQL against a named connection and details."""

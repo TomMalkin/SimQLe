@@ -10,6 +10,7 @@ The three types of data that are commonly returned are:
 DataContainer is the common set of setup that all the data containers undergo before filtering to
 their type of return data.
 """
+
 from .exceptions import NoScalarDataError, UnknownHeadingError
 from .logging import logger
 
@@ -31,12 +32,6 @@ class RecordSet:
             return iter(self.data)
         return iter(())
 
-    def dict_gen(self):
-        """Iterate over records as dictionaries."""
-        if self.data:
-            for record in self.data:
-                yield dict(zip(self.headings, record))
-
     def as_dict(self):
         """
         Return the records as a list of dicts.
@@ -45,7 +40,7 @@ class RecordSet:
         data sets.
         """
         if self.data:
-            return [dict(zip(self.headings, self.data)) for record in self.data or []]
+            return [dict(zip(self.headings, record)) for record in self.data]
         return []
 
     def column(self, heading):

@@ -1,4 +1,4 @@
-"""Test the DatabaseActioner class."""
+"""Test jhe DatabaseActioner class."""
 import pytest
 import simqle
 from simqle.actioner import DatabaseActioner, Record, RecordScalar, RecordSet, Transaction
@@ -220,28 +220,6 @@ def test_record_scalar_method(mocker):
 
     assert record_scalar.headings == test_headings
     assert record_scalar.data == test_data
-
-
-# def test_record_method(mocker):
-# test_headings = ["h1", "h2"]
-# test_data = [("a", "b"), ("c", "d")]
-
-# def mocked_get_data(self, connection, sql, params, reference):
-# return test_headings, test_data
-
-# class MockedRecord(simqle.actioner.Record):
-# def __init__(self, headings, data):
-# self.headings = headings
-# self.data = data
-
-# mocker.patch.object(simqle.actioner.DatabaseActioner, "get_data", new=mocked_get_data)
-# mocker.patch("simqle.actioner.Record", new=MockedRecord)
-
-# database_actioner = DatabaseActioner()
-# record = database_actioner.record("some connection", "test sql")
-
-# assert record.headings == test_headings
-# assert record.data == test_data
 
 
 def test_get_reference_method():
