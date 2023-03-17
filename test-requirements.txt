@@ -5,4 +5,5 @@ codecov
 pyodbc
 pytest
 pytest_mock
+jsonschema
 loguru
