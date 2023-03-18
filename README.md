@@ -3,8 +3,9 @@
 
 > The simple way to SQL
 
-Master Build Status ![Master Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=master)
-Dev Build Status ![Dev Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=dev)
+Master Build Status: ![Master Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=master)
+
+Dev Build Status: ![Dev Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=dev)
 
 
 Perfect for no fuss SQL in your Python projects. Execute SQL and return simple
