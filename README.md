@@ -3,8 +3,8 @@
 
 > The simple way to SQL
 
-![Master Build Status](https://app.travis-ci.com/TomMalkin/SimQLe.svg?branch=master)
-![Dev Build Status](https://app.travis-ci.com/TomMalkin/SimQLe.svg?branch=dev)
+![Master Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=master)
+![Dev Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=dev)
 
 
 Perfect for no fuss SQL in your Python projects. Execute SQL and return simple
