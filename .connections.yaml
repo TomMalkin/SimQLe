@@ -1,5 +1,0 @@
-connections:
-  - name: main
-    driver: sqlite:///
-    connection: ":memory:"
-default: main
