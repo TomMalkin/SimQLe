@@ -1,3 +1,5 @@
+"""Expose useful functions that can be used by other libraries, like pandas."""
+
 from sqlalchemy import text, VARCHAR, bindparam
 
 
@@ -5,13 +7,16 @@ def bind_sql(sql, params):
     """
     Bind parameters to a SQL query.
 
-    Useful if the library that is executing your query, for exaple pandas,
+    Useful if the library that is executing your query, for example pandas,
     doesn't like named parameters. bind_sql will return a sql query with the
     parameters bound to the query.
 
-    Args:
-        sql: The SQL query to bind parameters to
-        params: The named parameters to bind to the query
+    Parameters
+    ----------
+        sql : str
+            The SQL query to bind parameters to
+        params: dict
+            The named parameters to bind to the query
     """
     bound_sql = text(sql)  # convert to the useful sqlalchemy text
 
