@@ -3,8 +3,9 @@
 
 > The simple way to SQL
 
-[![Build Status](https://app.travis-ci.com/TomMalkin/SimQLe.svg?branch=master)](https://app.travis-ci.com/TomMalkin/SimQLe)
-[![CodeCov](https://codecov.io/gh/Harlekuin/SimQLe/branch/master/graph/badge.svg)](https://codecov.io/gh/Harlekuin/SimQLe)
+![Master Build Status](https://app.travis-ci.com/TomMalkin/SimQLe.svg?branch=master)
+![Dev Build Status](https://app.travis-ci.com/TomMalkin/SimQLe.svg?branch=dev)
+
 
 Perfect for no fuss SQL in your Python projects. Execute SQL and return simple
 record sets with named parameters. Manage several connections, and switch 
