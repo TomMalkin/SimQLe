@@ -25,13 +25,11 @@ jobs:
 
       - name: Install package
         run: python setup.py install
-        fail_ci_if_error: true
 
       - name: Test with coverage and pytest
         run: |
           coverage run -m pytest ./tests/unit
           coverage xml
-        fail_ci_if_error: true
 
       - uses: codecov/codecov-action@v3
         with:
