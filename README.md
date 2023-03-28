@@ -4,8 +4,10 @@
 > The simple way to SQL
 
 Master Build Status: ![Master Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=master)
+[![codecov](https://codecov.io/gh/TomMalkin/SimQLe/branch/master/graph/badge.svg?token=E38bLHS6VY)](https://codecov.io/gh/TomMalkin/SimQLe)
 
 Dev Build Status: ![Dev Build Status](https://github.com/TomMalkin/SimQLe/actions/workflows/test-package.yml/badge.svg?branch=dev)
+[![codecov](https://codecov.io/gh/TomMalkin/SimQLe/branch/dev/graph/badge.svg?token=E38bLHS6VY)](https://codecov.io/gh/TomMalkin/SimQLe)
 
 
 Perfect for no fuss SQL in your Python projects. Execute SQL and return simple
