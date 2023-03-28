@@ -1,7 +1,9 @@
-behave
 pymysql
 psycopg2
-cryptography
 coverage
 codecov
 pyodbc
+pytest
+pytest_mock
+jsonschema
+loguru
